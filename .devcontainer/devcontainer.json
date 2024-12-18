@@ -1,8 +1,8 @@
 {
   "name": "nextjs",
-  "build": {
-    "dockerfile": "Dockerfile"
-  },
+  "dockerComposeFile": "compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   "customizations": {
     "vscode": {
       "extensions": [
