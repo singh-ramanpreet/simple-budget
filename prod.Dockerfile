@@ -32,9 +32,6 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ARG DATABASE_URL
 ENV DATABASE_URL=${DATABASE_URL}
 
-# migrate the database
-RUN pnpm db:push
-
 # Build Next.js based on the preferred package manager
 RUN pnpm build
 
