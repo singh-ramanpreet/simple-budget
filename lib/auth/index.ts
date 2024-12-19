@@ -20,4 +20,6 @@ export const auth = betterAuth({
       enabled: true,
     },
   },
+  // if trustedOrigins is empty, it will allow all origins
+  trustedOrigins: [process.env.BETTER_AUTH_TRUSTED_ORIGINS || "http://localhost:3000"],
 })
