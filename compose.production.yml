@@ -1,0 +1,12 @@
+services:
+  simple-budget:
+    build:
+      dockerfile: prod.Dockerfile
+      context: .
+      args:
+        - DATABASE_URL: ${DATABASE_URL}
+    env_file: .env
+    ports:
+      - "3035:3000"
+    restart: unless-stopped
+    network_mode: bridge
