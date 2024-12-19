@@ -7,6 +7,7 @@ services:
       context: .
       args:
         - DATABASE_URL=${DATABASE_URL}
+    user: 1000:1000
     env_file: .env
     ports:
       - "3035:3000"
