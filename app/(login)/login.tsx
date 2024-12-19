@@ -34,8 +34,6 @@ export function LoginForm({ type }: LoginFormProps) {
   const onSubmit = async (data: SignUpFormData) => {
     // set loading state
     setIsLoading(true)
-    // add 1s delay
-    await new Promise((resolve) => setTimeout(resolve, 1000))
 
     if (isLogin) {
       const loginData: LoginFormData = {
