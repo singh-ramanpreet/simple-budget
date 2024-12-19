@@ -5,12 +5,7 @@
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   "customizations": {
     "vscode": {
-      "extensions": [
-        "dbaeumer.vscode-eslint",
-        "bradlc.vscode-tailwindcss",
-        "esbenp.prettier-vscode",
-        "GitHub.copilot"
-      ],
+      "extensions": ["dbaeumer.vscode-eslint", "bradlc.vscode-tailwindcss", "esbenp.prettier-vscode", "GitHub.copilot"],
       "settings": {
         "dotfiles.repository": "singh-ramanpreet/dotfiles",
         "dotfiles.targetPath": "~/dotfiles",
