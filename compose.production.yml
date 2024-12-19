@@ -1,9 +1,9 @@
 services:
   simple-budget:
     container_name: simple-budget
+    image: simple-budget
     build:
       dockerfile: prod.Dockerfile
-      image: simple-budget
       context: .
       args:
         - DATABASE_URL=${DATABASE_URL}
