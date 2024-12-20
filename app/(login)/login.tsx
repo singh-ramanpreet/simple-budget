@@ -10,7 +10,7 @@ import { LoaderCircle } from "lucide-react"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { LoginFormData, SignUpFormData, loginSchema, signUpSchema } from "./form"
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { redirect } from "next/navigation"
 
 interface LoginFormProps {
   type: "login" | "register"
@@ -18,7 +18,7 @@ interface LoginFormProps {
 
 export function LoginForm({ type }: LoginFormProps) {
   const isLogin = type === "login"
-  const router = useRouter()
+
   const [isLoading, setIsLoading] = useState(false)
 
   const form = useForm<SignUpFormData>({
@@ -45,7 +45,7 @@ export function LoginForm({ type }: LoginFormProps) {
           setIsLoading(false)
         },
         onSuccess: () => {
-          router.push("/")
+          redirect("/")
         },
         onError: (ctx) => {
           form.setError("root", {
@@ -64,7 +64,7 @@ export function LoginForm({ type }: LoginFormProps) {
           setIsLoading(false)
         },
         onSuccess: () => {
-          router.push("/")
+          redirect("/")
         },
         onError: (ctx) => {
           form.setError("root", {
