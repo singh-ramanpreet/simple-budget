@@ -47,7 +47,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico, sitemap.xml, manifest.json, robots.txt (metadata files)
+     * - web-app-manifest png files
      */
-    "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|manifest.json|robots.txt).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|manifest.json|robots.txt|web-app-manifest.*\\.png).*)",
   ],
 }
