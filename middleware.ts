@@ -2,10 +2,15 @@ import { betterFetch } from "@better-fetch/fetch"
 import type { Session } from "better-auth/types"
 import { NextResponse, type NextRequest } from "next/server"
 
-const protectedRoutes = ["/"]
+const protectedRoutes = ["/", "/dashboard"]
 const loginRoutes = ["/sign-in", "/sign-up"]
 
 export default async function middleware(request: NextRequest) {
+  // Add dashboard redirect
+  if (request.nextUrl.pathname === "/dashboard") {
+    return NextResponse.redirect(new URL("/", request.url))
+  }
+
   const isProtectedRoute = protectedRoutes.some((route) => request.nextUrl.pathname.startsWith(route))
   const isLoginRoute = loginRoutes.includes(request.nextUrl.pathname)
 
