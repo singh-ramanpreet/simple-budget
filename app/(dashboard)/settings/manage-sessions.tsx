@@ -72,16 +72,13 @@ export default function ManageSessions() {
 
   return (
     <div className="space-y-4">
-      <h2>Active Sessions</h2>
       {sessions.map((session) => (
         <div key={session.id}>
           <Card className="flex items-center justify-between p-4">
             <div>
-              <p className="text-sm">{session.userAgent || "Unknown Device"}</p>
-              <p className="text-sm text-muted-foreground">
-                Last active: {new Date(session.updatedAt).toLocaleString()}
-              </p>
-              <p className="text-sm text-muted-foreground">IP Address: {session.ipAddress}</p>
+              <p className="text-sm text-muted-foreground">{session.userAgent || "Unknown Device"}</p>
+              <p className="text-sm">Last Updated: {new Date(session.updatedAt).toLocaleString()}</p>
+              <p className="text-sm">IP Address: {session.ipAddress}</p>
             </div>
             <Button
               variant="destructive"
