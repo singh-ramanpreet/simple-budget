@@ -3,11 +3,11 @@ import type { Session } from "better-auth/types"
 import { NextResponse, type NextRequest } from "next/server"
 
 const protectedRoutes = ["/"]
-const publicRoutes = ["/sign-in", "/sign-up"]
+const loginRoutes = ["/sign-in", "/sign-up"]
 
 export default async function middleware(request: NextRequest) {
-  const isProtectedRoute = protectedRoutes.includes(request.nextUrl.pathname)
-  const isPublicRoute = publicRoutes.includes(request.nextUrl.pathname)
+  const isProtectedRoute = protectedRoutes.some((route) => request.nextUrl.pathname.startsWith(route))
+  const isLoginRoute = loginRoutes.includes(request.nextUrl.pathname)
 
   const forwardedProto = request.headers.get("x-forwarded-proto") || "https"
   const forwardedHost = request.headers.get("x-forwarded-host") || request.headers.get("host")
@@ -22,8 +22,12 @@ export default async function middleware(request: NextRequest) {
   })
 
   if (!session) {
-    if (isProtectedRoute && !isPublicRoute) {
+    if (isProtectedRoute && !isLoginRoute) {
       return NextResponse.redirect(new URL("/sign-in", request.url))
+    }
+  } else {
+    if (isLoginRoute) {
+      return NextResponse.redirect(new URL("/", request.url))
     }
   }
   return NextResponse.next()
