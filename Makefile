@@ -12,7 +12,8 @@ down-production:
 
 .PHONY: migrate-database
 migrate-database:
-	touch database.db
+	DB_FILE_PATH=$(sed -n 's/DB_FILE_PATH=\(.*\)/\1/p' .env)
+	touch $(DB_FILE_PATH)
 	docker build -f migrate.Dockerfile -t simple-budget-migrate .
-	docker run --env-file .env -it --rm -v $(PWD)/database.db:/app/database.db simple-budget-migrate
+	docker run --env-file .env -it --rm -v $(DB_FILE_PATH):/app/database.db simple-budget-migrate
 	docker rmi simple-budget-migrate

@@ -14,4 +14,4 @@ services:
     restart: unless-stopped
     network_mode: bridge
     volumes:
-      - ./database.db:/app/database.db
+      - ${DB_FILE_PATH}:/app/database.db
