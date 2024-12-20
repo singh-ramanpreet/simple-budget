@@ -1,34 +1,35 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import * as z from "zod"
 import { authClient } from "@/lib/auth/client"
-import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+
+const formSchema = z.object({
+  newName: z.string().min(1, "Name is required"),
+})
 
 export default function ChangeName() {
   const { toast } = useToast()
-
-  const [name, setName] = useState("")
-  const [newName, setNewName] = useState("")
   const [loading, setLoading] = useState(false)
 
-  async function fetchSession() {
-    const { data } = await authClient.getSession()
-    setName(data?.user?.name || "")
-  }
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      newName: "",
+    },
+  })
 
-  useEffect(() => {
-    fetchSession()
-  }, [])
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true)
 
     await authClient.updateUser(
-      { name: newName },
+      { name: values.newName },
       {
         onError: (ctx) => {
           toast({
@@ -41,8 +42,7 @@ export default function ChangeName() {
           toast({
             title: "Name updated successfully",
           })
-          fetchSession()
-          setNewName("")
+          form.reset()
           setLoading(false)
         },
       }
@@ -51,19 +51,26 @@ export default function ChangeName() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center space-x-4">
-        <Label>Current Name: {name}</Label>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="newName">New Name:</Label>
-          <Input id="newName" type="text" value={newName} onChange={(e) => setNewName(e.target.value)} required />
-        </div>
-        <Button type="submit" disabled={loading}>
-          {loading ? "Updating..." : "Update Name"}
-        </Button>
-      </form>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="newName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>New Name</FormLabel>
+                <FormControl>
+                  <Input {...field} className="border-4" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit" disabled={loading}>
+            {loading ? "Updating..." : "Update Name"}
+          </Button>
+        </form>
+      </Form>
     </div>
   )
 }

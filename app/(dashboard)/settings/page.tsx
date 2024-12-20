@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import Profile from "./profile"
 import ChangeName from "./change-name"
 import ChangePassword from "./change-password"
+import ManageSessions from "./manage-sessions"
 
 export default function Settings() {
   return (
@@ -25,6 +26,16 @@ export default function Settings() {
           </CardHeader>
           <CardContent className="space-y-4">
             <ChangeName />
+          </CardContent>
+        </Card>
+      </div>
+      <div className="flex justify-center py-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Manage Sessions</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <ManageSessions />
           </CardContent>
         </Card>
       </div>
