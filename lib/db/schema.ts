@@ -1,4 +1,30 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core"
+import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core"
+
+// table to budget transactions
+export const budget_transactions = sqliteTable("budget_transactions", {
+  id: integer({ mode: "number" }).primaryKey({ autoIncrement: true }),
+  userId: text("userId")
+    .notNull()
+    .references(() => user.id),
+  date: text("date").notNull(),
+  name: text("name").default("").notNull(),
+  amount: real("amount").default(0).notNull(),
+  category: text("category").default("").notNull(),
+  notes: text("notes").default("").notNull(),
+})
+
+// table for budget buckets
+export const budget_buckets = sqliteTable("budget_buckets", {
+  id: integer({ mode: "number" }).primaryKey({ autoIncrement: true }),
+  userId: text("userId")
+    .notNull()
+    .references(() => user.id),
+  month: integer("month").notNull(),
+  category: text("category").default("").notNull(),
+})
+
+// better-auth generated schema
+// ----- start of schema -----
 
 export const user = sqliteTable("user", {
   id: text("id").primaryKey(),
@@ -49,3 +75,6 @@ export const verification = sqliteTable("verification", {
   createdAt: integer("createdAt", { mode: "timestamp" }),
   updatedAt: integer("updatedAt", { mode: "timestamp" }),
 })
+
+// better-auth generated schema
+// ----- end of schema -----
