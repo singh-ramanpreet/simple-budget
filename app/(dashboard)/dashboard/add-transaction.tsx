@@ -26,9 +26,10 @@ const formSchema = z.object({
 
 interface AddTransactionProps {
   onAddTransaction: (() => void)[]
+  onCanceled: () => void
 }
 
-export default function AddTransaction({ onAddTransaction }: AddTransactionProps) {
+export default function AddTransaction({ onAddTransaction, onCanceled }: AddTransactionProps) {
   const [loggedUserId, setLoggedUserId] = useState("")
   const [buckets, setBuckets] = useState<Bucket[]>([])
   const [existingNames, setExistingNames] = useState<string[]>([])
@@ -200,8 +201,11 @@ export default function AddTransaction({ onAddTransaction }: AddTransactionProps
             </FormItem>
           )}
         />
-        <div className="flex justify-end pt-2">
+        <div className="flex justify-end space-x-4 pt-2">
           <Button type="submit"> Add Transaction</Button>
+          <Button variant="destructive" onClick={onCanceled}>
+            Cancel
+          </Button>
         </div>
       </form>
     </Form>

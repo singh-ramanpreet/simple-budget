@@ -38,12 +38,16 @@ export default function Dashboard() {
                 Add Transaction
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent
+              onPointerDownOutside={(e) => {
+                e.preventDefault()
+              }}
+            >
               <DialogHeader>
                 <DialogTitle className="text-center">New Transaction</DialogTitle>
                 <DialogDescription></DialogDescription>
               </DialogHeader>
-              <AddTransaction onAddTransaction={[handleRefresh, handleDialog]} />
+              <AddTransaction onAddTransaction={[handleRefresh, handleDialog]} onCanceled={handleDialog} />
             </DialogContent>
           </Dialog>
         </CardContent>
