@@ -35,6 +35,7 @@ export default function AddTransaction({ onAddTransaction, onCanceled }: AddTran
   const [existingNames, setExistingNames] = useState<string[]>([])
   const [existingNotes, setExistingNotes] = useState<string[]>([])
   const [selectedMonth, setSelectedMonth] = useState(() => new Date().getMonth() + 1)
+  const [selectedYear, setSelectedYear] = useState(() => new Date().getFullYear())
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -56,7 +57,7 @@ export default function AddTransaction({ onAddTransaction, onCanceled }: AddTran
 
       if (userId) {
         const [bucketData, names, notes] = await Promise.all([
-          fetchBuckets(userId, selectedMonth),
+          fetchBuckets(userId, selectedMonth, selectedYear),
           fetchTransactionNames(userId),
           fetchTransactionNotes(userId),
         ])
@@ -66,7 +67,7 @@ export default function AddTransaction({ onAddTransaction, onCanceled }: AddTran
       }
     }
     initializeData()
-  }, [selectedMonth])
+  }, [selectedMonth, selectedYear])
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const userId = loggedUserId
@@ -108,6 +109,7 @@ export default function AddTransaction({ onAddTransaction, onCanceled }: AddTran
                         field.onChange(date)
                         if (date) {
                           setSelectedMonth(date.getMonth() + 1)
+                          setSelectedYear(date.getFullYear())
                         }
                         setIsCalendarOpen(false)
                       }}

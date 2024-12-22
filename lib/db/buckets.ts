@@ -39,9 +39,10 @@ export async function fetchBucket(userId: string, id: number) {
 }
 
 // Function to fetch all buckets for a user
-export async function fetchBuckets(userId: string, filterMonth?: number) {
+export async function fetchBuckets(userId: string, filterMonth?: number, filterYear?: number) {
   const conditions = [eq(budget_buckets.userId, userId)]
   if (filterMonth) conditions.push(eq(budget_buckets.month, filterMonth))
+  if (filterYear) conditions.push(eq(budget_buckets.year, filterYear))
   return await db
     .select()
     .from(budget_buckets)

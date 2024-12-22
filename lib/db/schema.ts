@@ -22,6 +22,7 @@ export const budget_buckets = sqliteTable("budget_buckets", {
     .notNull()
     .references(() => user.id),
   month: integer("month").notNull(),
+  year: integer("year").notNull().default(new Date().getFullYear()),
   category: text("category").default("").notNull(),
   amount: real("amount").default(0).notNull(),
 })
