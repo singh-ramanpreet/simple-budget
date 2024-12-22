@@ -5,9 +5,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PlusCircle, ListOrdered } from "lucide-react"
 import ListTransactions from "./dashboard/list-transactions"
 import AddTransaction from "./dashboard/add-transaction"
+import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 
 export default function Dashboard() {
   const [refreshTransactions, setRefreshTransactions] = useState(false)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+
+  const handleDialog = () => {
+    setIsDialogOpen(!isDialogOpen)
+  }
 
   const handleRefresh = () => {
     setRefreshTransactions(!refreshTransactions)
@@ -16,14 +23,21 @@ export default function Dashboard() {
   return (
     <div className="flex flex-col items-center space-y-4 py-4">
       <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <PlusCircle className="h-5 w-5 text-muted-foreground" />
-            <span>New Transaction</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <AddTransaction onAddTransaction={handleRefresh} />
+        <CardContent className="flex flex-col items-center space-y-4 p-4">
+          <Dialog open={isDialogOpen} onOpenChange={handleDialog}>
+            <DialogTrigger asChild>
+              <Button>
+                <PlusCircle className="h-5 w-5 opacity-50" />
+                Add Transaction
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle className="text-center">New Transaction</DialogTitle>
+              </DialogHeader>
+              <AddTransaction onAddTransaction={[handleRefresh, handleDialog]} />
+            </DialogContent>
+          </Dialog>
         </CardContent>
       </Card>
       <Card className="w-full max-w-md">

@@ -9,7 +9,9 @@ export const budget_transactions = sqliteTable("budget_transactions", {
   date: text("date").notNull(),
   name: text("name").default("").notNull(),
   amount: real("amount").default(0).notNull(),
-  category: text("category").default("").notNull(),
+  category_id: integer("category_id")
+    .notNull()
+    .references(() => budget_buckets.id),
   notes: text("notes").default("").notNull(),
 })
 
@@ -21,6 +23,7 @@ export const budget_buckets = sqliteTable("budget_buckets", {
     .references(() => user.id),
   month: integer("month").notNull(),
   category: text("category").default("").notNull(),
+  amount: real("amount").default(0).notNull(),
 })
 
 // better-auth generated schema

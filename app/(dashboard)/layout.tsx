@@ -3,6 +3,7 @@ import React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Settings, LayoutDashboard } from "lucide-react"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -18,17 +19,18 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       : "dashboard"
 
   return (
-    <div className="flex flex-col items-center p-2">
-      <header className="flex w-full max-w-md justify-center p-1">
-        <h1 className="font-bold">Simple Budget</h1>
-      </header>
-      <Tabs value={currentTab} className="w-full max-w-md">
-        <TabsList className="grid w-full grid-cols-2">
+    <div className="flex flex-col items-center pt-0">
+      <Tabs value={currentTab} className="w-full max-w-md overflow-hidden">
+        <TabsList className="grid h-full grid-cols-2 rounded-t-none">
           <TabsTrigger value="dashboard" asChild>
-            <Link href="/">Dashboard</Link>
+            <Link href="/">
+              <LayoutDashboard className="h-6 w-6" />
+            </Link>
           </TabsTrigger>
           <TabsTrigger value="settings" asChild>
-            <Link href="/settings">Settings</Link>
+            <Link href="/settings">
+              <Settings size={24} />
+            </Link>
           </TabsTrigger>
         </TabsList>
       </Tabs>

@@ -24,7 +24,7 @@ export default function ListTransactions({ refresh }: ListTransactionsProps) {
         return
       }
       const result = await fetchTransactions(userId, currentDate.getUTCMonth() + 1)
-      setTransactions(result)
+      setTransactions(result.map((t) => ({ ...t.budget_transactions, category: t.budget_buckets?.category ?? "" })))
     } finally {
       setIsLoading(false)
     }
