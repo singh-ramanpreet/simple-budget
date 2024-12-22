@@ -203,7 +203,7 @@ export default function AddTransaction({ onAddTransaction, onCanceled }: AddTran
         />
         <div className="flex justify-end space-x-4 pt-2">
           <Button type="submit"> Add Transaction</Button>
-          <Button variant="destructive" onClick={onCanceled}>
+          <Button type="button" variant="destructive" onClick={onCanceled}>
             Cancel
           </Button>
         </div>
