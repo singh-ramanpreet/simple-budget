@@ -33,13 +33,13 @@ export default function AddTransaction({ onAddTransaction }: AddTransactionProps
   const [buckets, setBuckets] = useState<Bucket[]>([])
   const [existingNames, setExistingNames] = useState<string[]>([])
   const [existingNotes, setExistingNotes] = useState<string[]>([])
-  const [selectedMonth, setSelectedMonth] = useState<number>(0)
+  const [selectedMonth, setSelectedMonth] = useState(() => new Date().getMonth() + 1)
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      date: undefined,
+      date: new Date(),
       name: "",
       amount: "",
       category: "",
@@ -47,37 +47,25 @@ export default function AddTransaction({ onAddTransaction }: AddTransactionProps
     },
   })
 
-  async function fetchUser() {
-    const { data: session } = await authClient.getSession()
-    const userId = session?.user?.id || ""
-    setLoggedUserId(userId)
-  }
-
   useEffect(() => {
-    async function fetchExistingNames() {
-      const result = await fetchTransactionNames(loggedUserId)
-      setExistingNames(result)
-    }
-    async function fetchExistingNotes() {
-      const result = await fetchTransactionNotes(loggedUserId)
-      setExistingNotes(result)
-    }
-    fetchExistingNames()
-    fetchExistingNotes()
-  }, [loggedUserId])
+    async function initializeData() {
+      const { data: session } = await authClient.getSession()
+      const userId = session?.user?.id || ""
+      setLoggedUserId(userId)
 
-  useEffect(() => {
-    async function fetchCategories() {
-      const result = await fetchBuckets(loggedUserId, selectedMonth)
-      setBuckets(result)
+      if (userId) {
+        const [bucketData, names, notes] = await Promise.all([
+          fetchBuckets(userId, selectedMonth),
+          fetchTransactionNames(userId),
+          fetchTransactionNotes(userId),
+        ])
+        setBuckets(bucketData)
+        setExistingNames(names)
+        setExistingNotes(notes)
+      }
     }
-
-    if (selectedMonth === 0) setSelectedMonth(new Date().getMonth() + 1)
-    if (form.getValues("date") === undefined) form.setValue("date", new Date())
-    console.log("form", format(form.getValues("date"), "yyyy-MM-dd"))
-    fetchUser()
-    fetchCategories()
-  }, [loggedUserId, selectedMonth, form])
+    initializeData()
+  }, [selectedMonth])
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const userId = loggedUserId

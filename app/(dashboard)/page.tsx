@@ -6,7 +6,14 @@ import { PlusCircle, ListOrdered } from "lucide-react"
 import ListTransactions from "./dashboard/list-transactions"
 import AddTransaction from "./dashboard/add-transaction"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 export default function Dashboard() {
   const [refreshTransactions, setRefreshTransactions] = useState(false)
@@ -34,6 +41,7 @@ export default function Dashboard() {
             <DialogContent>
               <DialogHeader>
                 <DialogTitle className="text-center">New Transaction</DialogTitle>
+                <DialogDescription></DialogDescription>
               </DialogHeader>
               <AddTransaction onAddTransaction={[handleRefresh, handleDialog]} />
             </DialogContent>
