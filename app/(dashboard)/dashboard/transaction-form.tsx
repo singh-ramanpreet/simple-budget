@@ -11,7 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { CalendarIcon, Trash2 } from "lucide-react"
 import { format } from "date-fns"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 export const transactionSchema = z.object({
   date: z.date(),
@@ -21,16 +21,17 @@ export const transactionSchema = z.object({
   notes: z.string().optional(),
 })
 
-type TransactionFormValues = z.infer<typeof transactionSchema>
+export type TransactionFormValues = z.infer<typeof transactionSchema>
 
 interface TransactionFormProps {
-  defaultValues: TransactionFormValues
+  defaultValues?: TransactionFormValues
   existingNames: string[]
   existingNotes: string[]
   buckets: { id: number; category: string }[]
   onDateChange: (date: Date) => void
   onSubmit: (values: TransactionFormValues) => Promise<void>
   onCancel?: () => void
+  onCopy?: () => void
   onDelete?: () => void
 }
 
@@ -42,18 +43,37 @@ export default function TransactionForm({
   onDateChange,
   onSubmit,
   onCancel,
+  onCopy,
   onDelete,
 }: TransactionFormProps) {
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema),
-    defaultValues,
+    defaultValues: defaultValues ?? {
+      date: new Date(),
+      name: "",
+      amount: "",
+      category: "",
+      notes: "",
+    },
   })
+
+  // Reset form when defaultValues change
+  useEffect(() => {
+    form.reset(defaultValues)
+  }, [defaultValues, form])
+
+  console.log(defaultValues)
 
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
 
   async function handleSubmit(values: TransactionFormValues) {
     await onSubmit(values)
     form.reset()
+  }
+
+  async function handleCopy() {
+    form.setValue("date", new Date())
+    onCopy?.()
   }
 
   return (
@@ -69,11 +89,13 @@ export default function TransactionForm({
                 <FormLabel className="w-1/3 text-right">Date</FormLabel>
                 <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                   <PopoverTrigger asChild>
-                    <FormControl className="w-2/3">
-                      <Button variant="outline" className="pl-3 text-left">
-                        {field.value ? format(field.value, "PPP") : "Select a date"}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
+                    <FormControl>
+                      <div className="w-2/3">
+                        <Button type="button" variant="outline" className="w-full pl-3 text-left">
+                          {field.value ? format(field.value, "PPP") : "Select a date"}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </div>
                     </FormControl>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -104,8 +126,10 @@ export default function TransactionForm({
             <FormItem>
               <div className="flex items-center space-x-2">
                 <FormLabel className="w-1/3 text-right">Name</FormLabel>
-                <FormControl className="w-2/3">
-                  <Input placeholder="Transaction name" {...field} list="transaction-names" />
+                <FormControl>
+                  <div className="w-2/3">
+                    <Input placeholder="Transaction name" {...field} list="transaction-names" />
+                  </div>
                 </FormControl>
                 <datalist id="transaction-names">
                   {existingNames.map((name) => (
@@ -125,8 +149,10 @@ export default function TransactionForm({
             <FormItem>
               <div className="flex items-center space-x-2">
                 <FormLabel className="w-1/3 text-right">Amount</FormLabel>
-                <FormControl className="w-2/3">
-                  <Input type="number" placeholder="0" {...field} />
+                <FormControl>
+                  <div className="w-2/3">
+                    <Input type="number" placeholder="0" {...field} />
+                  </div>
                 </FormControl>
               </div>
               <FormMessage className="ml-[35%]" />
@@ -142,10 +168,12 @@ export default function TransactionForm({
               <div className="flex items-center space-x-2">
                 <FormLabel className="w-1/3 text-right">Category</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value} name={field.name}>
-                  <FormControl className="w-2/3">
-                    <SelectTrigger className="w-2/3">
-                      <SelectValue placeholder="Select a category" />
-                    </SelectTrigger>
+                  <FormControl>
+                    <div className="w-2/3">
+                      <SelectTrigger className="w-2/3">
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                    </div>
                   </FormControl>
                   <SelectContent>
                     {buckets.map((bucket) => (
@@ -168,8 +196,10 @@ export default function TransactionForm({
             <FormItem>
               <div className="flex items-center space-x-2">
                 <FormLabel className="w-1/3 text-right">Notes</FormLabel>
-                <FormControl className="w-2/3">
-                  <Input placeholder="Notes" {...field} list="transaction-notes" />
+                <FormControl>
+                  <div className="w-2/3">
+                    <Input placeholder="Notes" {...field} list="transaction-notes" />
+                  </div>
                 </FormControl>
                 <datalist id="transaction-notes">
                   {existingNotes.map((note) => (
@@ -183,17 +213,24 @@ export default function TransactionForm({
         />
         <div className="flex justify-end space-x-4 pt-2">
           {onDelete && (
-            <div className="flex w-1/3 justify-start">
+            <div className="flex w-1/4 justify-start">
               <Button type="button" variant="destructive" onClick={onDelete} className="flex-shrink-0">
                 <Trash2 className="h-5 w-5" />
               </Button>
             </div>
           )}
-          <Button type="submit" className="w-1/3">
+          {onCopy && (
+            <div className="w-1/4">
+              <Button type="button" onClick={handleCopy} variant="outline" className="w-full">
+                Copy
+              </Button>
+            </div>
+          )}
+          <Button type="submit" className="w-1/4">
             Save
           </Button>
           {onCancel && (
-            <Button type="button" variant="secondary" onClick={onCancel} className="w-1/3">
+            <Button type="button" variant="secondary" onClick={onCancel} className="w-1/4">
               Cancel
             </Button>
           )}

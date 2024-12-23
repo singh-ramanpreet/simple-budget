@@ -50,11 +50,11 @@ export default function ListTransactions({
   const navigateMonth = (delta: number) => {
     setCurrentDate((prev) => {
       const newDate = new Date(prev)
-      newDate.setUTCMonth(prev.getUTCMonth() + delta)
+      newDate.setMonth(prev.getMonth() + delta)
       return newDate
     })
-    setFilterMonth(currentDate.getUTCMonth() + delta + 1)
-    setFilterYear(currentDate.getUTCFullYear())
+    setFilterMonth(currentDate.getMonth() + delta + 1)
+    setFilterYear(currentDate.getFullYear())
   }
 
   if (!filterMonth || !filterYear) {
@@ -73,7 +73,7 @@ export default function ListTransactions({
         </button>
 
         <h2 className="text-lg font-medium">
-          {currentDate.toLocaleString("default", { month: "long", year: "numeric", timeZone: "UTC" })}
+          {currentDate.toLocaleString("default", { month: "long", year: "numeric" })}
         </h2>
 
         <button onClick={() => navigateMonth(1)} className="rounded-full p-2 hover:bg-muted">

@@ -12,7 +12,7 @@ export async function addTransaction(transaction: typeof budget_transactions.$in
 }
 
 // Function to delete a transaction from the budget table
-export async function deleteTransaction(id: number, userId: string) {
+export async function deleteTransaction(userId: string, id: number) {
   await db
     .delete(budget_transactions)
     .where(and(eq(budget_transactions.id, id), eq(budget_transactions.userId, userId)))
@@ -21,8 +21,8 @@ export async function deleteTransaction(id: number, userId: string) {
 
 // Function to update a transaction in the budget table
 export async function updateTransaction(
-  id: number,
   userId: string,
+  id: number,
   transaction: typeof budget_transactions.$inferInsert
 ) {
   await db

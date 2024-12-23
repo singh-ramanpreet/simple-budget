@@ -19,9 +19,14 @@ interface TransactionProps {
 
 export default function TransactionItem({ transaction, OnEditTransaction }: TransactionProps) {
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [copied, setCopied] = useState(false)
   const date = new Date(transaction.date)
-  const month = date.toLocaleString("default", { month: "short", timeZone: "UTC" })
-  const day = date.getUTCDate()
+  const month = date.toLocaleString("default", { month: "short" })
+  const day = date.getDate()
+
+  async function handleCopy() {
+    setCopied(true)
+  }
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -48,17 +53,32 @@ export default function TransactionItem({ transaction, OnEditTransaction }: Tran
           </div>
         </li>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent
+        onPointerDownOutside={(e) => {
+          e.preventDefault()
+        }}
+      >
         <DialogHeader>
-          <DialogTitle className="text-center">Edit Transaction</DialogTitle>
+          <DialogTitle className="text-center">{copied ? "New Transaction" : "Edit Transaction"}</DialogTitle>
           <DialogDescription></DialogDescription>
         </DialogHeader>
-        <AddTransaction
-          transactionId={transaction.id}
-          onAddTransaction={OnEditTransaction}
-          onCanceled={() => setDialogOpen(false)}
-          deleteButton={true}
-        />
+        {copied ? (
+          <AddTransaction
+            onAddTransaction={OnEditTransaction}
+            onCanceled={() => {
+              setDialogOpen(false)
+              setCopied(false)
+            }}
+          />
+        ) : (
+          <AddTransaction
+            transactionId={transaction.id}
+            onAddTransaction={OnEditTransaction}
+            onCanceled={() => setDialogOpen(false)}
+            onCopy={handleCopy}
+            deleteButton={true}
+          />
+        )}
       </DialogContent>
     </Dialog>
   )
