@@ -8,6 +8,9 @@ import TransactionItem from "./transaction"
 
 interface ListTransactionsProps {
   refresh: boolean
+  filterMonth?: number // todo
+  filterYear?: number // todo
+  filterCategory?: string // todo
   OnEditTransaction: (() => void)[]
 }
 
@@ -65,13 +68,7 @@ export default function ListTransactions({ refresh, OnEditTransaction }: ListTra
 
       <ul>
         {transactions.map((transaction) => (
-          <TransactionItem
-            key={transaction.id}
-            transaction={transaction}
-            filterMonth={currentDate.getUTCMonth()}
-            filterYear={currentDate.getUTCFullYear()}
-            OnEditTransaction={OnEditTransaction}
-          />
+          <TransactionItem key={transaction.id} transaction={transaction} OnEditTransaction={OnEditTransaction} />
         ))}
       </ul>
     </div>

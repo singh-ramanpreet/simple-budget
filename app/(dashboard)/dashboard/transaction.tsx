@@ -14,36 +14,14 @@ import AddTransaction from "./add-transaction"
 
 interface TransactionProps {
   transaction: Transaction
-  filterMonth?: number
-  filterYear?: number
-  filterCategory?: string
   OnEditTransaction: (() => void)[]
 }
 
-export default function TransactionItem({
-  transaction,
-  filterMonth,
-  filterYear,
-  filterCategory,
-  OnEditTransaction,
-}: TransactionProps) {
+export default function TransactionItem({ transaction, OnEditTransaction }: TransactionProps) {
   const [dialogOpen, setDialogOpen] = useState(false)
   const date = new Date(transaction.date)
   const month = date.toLocaleString("default", { month: "short", timeZone: "UTC" })
   const day = date.getUTCDate()
-
-  // Skip rendering if filters don't match
-  if (filterYear !== undefined && date.getUTCFullYear() !== filterYear) {
-    return null
-  }
-
-  if (filterMonth !== undefined && date.getUTCMonth() !== filterMonth) {
-    return null
-  }
-
-  if (filterCategory && transaction.category !== filterCategory) {
-    return null
-  }
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
