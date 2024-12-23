@@ -60,7 +60,7 @@ export default function Dashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <ListTransactions refresh={refreshTransactions} />
+          <ListTransactions refresh={refreshTransactions} OnEditTransaction={[handleRefresh]} />
         </CardContent>
       </Card>
     </div>

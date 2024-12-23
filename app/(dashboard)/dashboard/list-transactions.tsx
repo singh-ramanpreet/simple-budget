@@ -8,9 +8,10 @@ import TransactionItem from "./transaction"
 
 interface ListTransactionsProps {
   refresh: boolean
+  OnEditTransaction: (() => void)[]
 }
 
-export default function ListTransactions({ refresh }: ListTransactionsProps) {
+export default function ListTransactions({ refresh, OnEditTransaction }: ListTransactionsProps) {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [currentDate, setCurrentDate] = useState(new Date())
@@ -69,6 +70,7 @@ export default function ListTransactions({ refresh }: ListTransactionsProps) {
             transaction={transaction}
             filterMonth={currentDate.getUTCMonth()}
             filterYear={currentDate.getUTCFullYear()}
+            OnEditTransaction={OnEditTransaction}
           />
         ))}
       </ul>
