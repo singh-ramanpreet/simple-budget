@@ -43,11 +43,17 @@ export async function fetchTransaction(userId: string, id: number) {
 }
 
 // Function to fetch all transactions from the budget table
-export async function fetchTransactions(userId: string, filterMonth?: number, filterCategoryId?: number) {
+export async function fetchTransactions(
+  userId: string,
+  filterMonth?: number,
+  filterYear?: number,
+  filterCategoryId?: number
+) {
   const conditions = [eq(budget_transactions.userId, userId)]
 
   if (filterMonth)
     conditions.push(eq(sql`strftime('%m', ${budget_transactions.date})`, filterMonth.toString().padStart(2, "0")))
+  if (filterYear) conditions.push(eq(sql`strftime('%Y', ${budget_transactions.date})`, filterYear.toString()))
   if (filterCategoryId) conditions.push(eq(budget_transactions.category_id, filterCategoryId))
 
   return await db

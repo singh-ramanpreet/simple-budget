@@ -8,16 +8,25 @@ import TransactionItem from "./transaction"
 
 interface ListTransactionsProps {
   refresh: boolean
-  filterMonth?: number // todo
-  filterYear?: number // todo
-  filterCategory?: string // todo
+  month?: number
+  year?: number
+  categoryId?: number
   OnEditTransaction: (() => void)[]
 }
 
-export default function ListTransactions({ refresh, OnEditTransaction }: ListTransactionsProps) {
+export default function ListTransactions({
+  refresh,
+  month,
+  year,
+  categoryId,
+  OnEditTransaction,
+}: ListTransactionsProps) {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [currentDate, setCurrentDate] = useState(new Date())
+  const [filterMonth, setFilterMonth] = useState<number | undefined>(month)
+  const [filterYear, setFilterYear] = useState<number | undefined>(year)
+  const filterCategoryId = categoryId
 
   const refreshTransactions = useCallback(async () => {
     setIsLoading(true)
@@ -27,12 +36,12 @@ export default function ListTransactions({ refresh, OnEditTransaction }: ListTra
       if (!userId) {
         return
       }
-      const result = await fetchTransactions(userId, currentDate.getUTCMonth() + 1)
+      const result = await fetchTransactions(userId, filterMonth, filterYear, filterCategoryId)
       setTransactions(result.map((t) => ({ ...t.budget_transactions, category: t.budget_buckets?.category ?? "" })))
     } finally {
       setIsLoading(false)
     }
-  }, [currentDate])
+  }, [filterMonth, filterYear, filterCategoryId])
 
   useEffect(() => {
     refreshTransactions()
@@ -44,6 +53,12 @@ export default function ListTransactions({ refresh, OnEditTransaction }: ListTra
       newDate.setUTCMonth(prev.getUTCMonth() + delta)
       return newDate
     })
+    setFilterMonth(currentDate.getUTCMonth() + delta + 1)
+    setFilterYear(currentDate.getUTCFullYear())
+  }
+
+  if (!filterMonth || !filterYear) {
+    navigateMonth(0)
   }
 
   if (isLoading) {
