@@ -51,10 +51,10 @@ export default function ListTransactions({
     setCurrentDate((prev) => {
       const newDate = new Date(prev)
       newDate.setMonth(prev.getMonth() + delta)
+      setFilterMonth(newDate.getMonth() + 1)
+      setFilterYear(newDate.getFullYear())
       return newDate
     })
-    setFilterMonth(currentDate.getMonth() + delta + 1)
-    setFilterYear(currentDate.getFullYear())
   }
 
   if (!filterMonth || !filterYear) {

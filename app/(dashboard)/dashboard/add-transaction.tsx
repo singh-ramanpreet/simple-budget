@@ -39,6 +39,8 @@ export default function AddTransaction({
   const [selectedMonth, setSelectedMonth] = useState(() => new Date().getMonth() + 1)
   const [selectedYear, setSelectedYear] = useState(() => new Date().getFullYear())
 
+  // Fetch bucket data and existing names/notes when the component is mounted
+  // and when the selected month/year changes
   useEffect(() => {
     async function initializeData() {
       const { data: session } = await authClient.getSession()
@@ -55,11 +57,23 @@ export default function AddTransaction({
         setExistingNames(names)
         setExistingNotes(notes)
       }
+    }
+    initializeData()
+  }, [selectedMonth, selectedYear])
+
+  // Fetch transaction data if transactionId is provided
+  // and set the default values when the component is mounted
+  // and when the transactionId changes
+  useEffect(() => {
+    async function initializeTransactionValues() {
       if (transactionId) {
-        const transaction = await fetchTransaction(userId, transactionId)
+        const transaction = await fetchTransaction(loggedUserId, transactionId)
         if (transaction) {
+          const date = new Date(transaction.budget_transactions.date)
+          const bucketData = await fetchBuckets(loggedUserId, date.getMonth() + 1, date.getFullYear())
+          setBuckets(bucketData)
           setDefaultValues({
-            date: new Date(transaction.budget_transactions.date),
+            date: date,
             name: transaction.budget_transactions.name,
             amount: transaction.budget_transactions.amount.toString(),
             category: transaction.budget_buckets?.category ?? "",
@@ -68,8 +82,8 @@ export default function AddTransaction({
         }
       }
     }
-    initializeData()
-  }, [selectedMonth, selectedYear, transactionId])
+    initializeTransactionValues()
+  }, [transactionId, loggedUserId])
 
   async function handleFormSubmit(values: z.infer<typeof transactionSchema>) {
     try {
@@ -77,7 +91,7 @@ export default function AddTransaction({
         ...values,
         id: transactionId,
         userId: loggedUserId,
-        amount: parseFloat(values.amount),
+        amount: Number(parseFloat(values.amount).toFixed(2)),
         date: formatISO(values.date),
         category_id: buckets.find((b) => b.category === values.category)?.id || 0,
       }

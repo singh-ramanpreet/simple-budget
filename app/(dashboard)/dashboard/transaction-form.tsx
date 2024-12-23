@@ -62,8 +62,6 @@ export default function TransactionForm({
     form.reset(defaultValues)
   }, [defaultValues, form])
 
-  console.log(defaultValues)
-
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
 
   async function handleSubmit(values: TransactionFormValues) {
@@ -170,7 +168,7 @@ export default function TransactionForm({
                 <Select onValueChange={field.onChange} value={field.value} name={field.name}>
                   <FormControl>
                     <div className="w-2/3">
-                      <SelectTrigger className="w-2/3">
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select a category" />
                       </SelectTrigger>
                     </div>
