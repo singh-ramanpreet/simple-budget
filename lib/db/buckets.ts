@@ -13,7 +13,7 @@ export async function addBucket(bucket: typeof budget_buckets.$inferInsert) {
 }
 
 // Function to delete a bucket
-export async function deleteBucket(id: number, userId: string) {
+export async function deleteBucket(userId: string, id: number) {
   await db
     .delete(budget_buckets)
     .where(and(eq(budget_buckets.id, id), eq(budget_buckets.userId, userId)))
@@ -21,7 +21,7 @@ export async function deleteBucket(id: number, userId: string) {
 }
 
 // Function to update a bucket
-export async function updateBucket(id: number, userId: string, bucket: typeof budget_buckets.$inferInsert) {
+export async function updateBucket(userId: string, id: number, bucket: typeof budget_buckets.$inferInsert) {
   await db
     .update(budget_buckets)
     .set(bucket)
