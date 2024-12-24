@@ -109,6 +109,9 @@ export default function Dashboard() {
                   onPointerDownOutside={(e) => {
                     e.preventDefault()
                   }}
+                  onOpenAutoFocus={(e) => {
+                    e.preventDefault()
+                  }}
                 >
                   <DialogHeader>
                     <DialogTitle className="text-center">New Bucket</DialogTitle>

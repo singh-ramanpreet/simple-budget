@@ -37,7 +37,11 @@ export default function BucketItem({ bucket, OnEditBucket }: BucketProps) {
           </div>
         </li>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent
+        onOpenAutoFocus={(e) => {
+          e.preventDefault()
+        }}
+      >
         <DialogHeader>
           <DialogTitle className="text-center">Edit Budget Bucket</DialogTitle>
           <DialogDescription></DialogDescription>
