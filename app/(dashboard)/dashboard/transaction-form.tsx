@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
-import { CalendarIcon, Trash2 } from "lucide-react"
+import { CalendarIcon, Loader2, Trash2 } from "lucide-react"
 import { format } from "date-fns"
 import { useEffect, useState } from "react"
 
@@ -33,6 +33,7 @@ interface TransactionFormProps {
   onCancel?: () => void
   onCopy?: () => void
   onDelete?: () => void
+  isLoading?: boolean
 }
 
 export default function TransactionForm({
@@ -45,6 +46,7 @@ export default function TransactionForm({
   onCancel,
   onCopy,
   onDelete,
+  isLoading,
 }: TransactionFormProps) {
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema),
@@ -202,23 +204,30 @@ export default function TransactionForm({
         <div className="flex justify-end space-x-4 pt-2">
           {onDelete && (
             <div className="flex w-1/4 justify-start">
-              <Button type="button" variant="destructive" onClick={onDelete} className="flex-shrink-0">
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={onDelete}
+                className="flex-shrink-0"
+                disabled={isLoading}
+              >
                 <Trash2 className="h-5 w-5" />
               </Button>
             </div>
           )}
           {onCopy && (
             <div className="w-1/4">
-              <Button type="button" onClick={handleCopy} variant="outline" className="w-full">
+              <Button type="button" onClick={handleCopy} variant="outline" className="w-full" disabled={isLoading}>
                 Copy
               </Button>
             </div>
           )}
-          <Button type="submit" className="w-1/4">
+          <Button type="submit" className="w-1/4" disabled={isLoading}>
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Save
           </Button>
           {onCancel && (
-            <Button type="button" variant="secondary" onClick={onCancel} className="w-1/4">
+            <Button type="button" variant="secondary" onClick={onCancel} className="w-1/4" disabled={isLoading}>
               Cancel
             </Button>
           )}

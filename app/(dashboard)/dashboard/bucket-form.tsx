@@ -180,7 +180,7 @@ export default function BucketForm({ defaultValues, onSubmit, onDelete, onCancel
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Save
           </Button>
-          <Button type="button" variant="secondary" onClick={onCancel} className="w-1/3">
+          <Button type="button" variant="secondary" onClick={onCancel} className="w-1/3" disabled={isLoading}>
             Cancel
           </Button>
         </div>

@@ -31,6 +31,7 @@ export default function AddTransaction({
   deleteButton = false,
   transactionId = undefined,
 }: AddTransactionProps) {
+  const [isLoading, setIsLoading] = useState(false)
   const [loggedUserId, setLoggedUserId] = useState("")
   const [buckets, setBuckets] = useState<Bucket[]>([])
   const [defaultValues, setDefaultValues] = useState<TransactionFormValues>()
@@ -86,6 +87,7 @@ export default function AddTransaction({
   }, [transactionId, loggedUserId])
 
   async function handleFormSubmit(values: z.infer<typeof transactionSchema>) {
+    setIsLoading(true)
     try {
       const transactionData = {
         ...values,
@@ -103,6 +105,8 @@ export default function AddTransaction({
       }
     } catch (error) {
       console.error("Error adding transaction", error)
+    } finally {
+      setIsLoading(false)
     }
     onAddTransaction.forEach((cb) => cb())
   }
@@ -114,9 +118,14 @@ export default function AddTransaction({
 
   async function handleDelete() {
     if (!transactionId) return
-    await deleteTransaction(loggedUserId, transactionId)
-    onCanceled()
-    onAddTransaction.forEach((cb) => cb())
+    setIsLoading(true)
+    try {
+      await deleteTransaction(loggedUserId, transactionId)
+      onCanceled()
+      onAddTransaction.forEach((cb) => cb())
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -130,6 +139,7 @@ export default function AddTransaction({
       onCancel={onCanceled}
       onCopy={onCopy}
       onDelete={deleteButton ? handleDelete : undefined}
+      isLoading={isLoading}
     />
   )
 }
