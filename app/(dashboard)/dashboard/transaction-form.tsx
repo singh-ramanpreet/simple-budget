@@ -83,17 +83,15 @@ export default function TransactionForm({
           name="date"
           render={({ field }) => (
             <FormItem>
-              <div className="flex items-center space-x-2">
-                <FormLabel className="w-1/3 text-right">Date</FormLabel>
+              <div className="flex items-center justify-end space-x-2">
+                <FormLabel className="text-right">Date</FormLabel>
                 <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                   <PopoverTrigger asChild>
-                    <FormControl>
-                      <div className="w-2/3">
-                        <Button type="button" variant="outline" className="w-full pl-3 text-left">
-                          {field.value ? format(field.value, "PPP") : "Select a date"}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </div>
+                    <FormControl className="w-2/3">
+                      <Button type="button" variant="outline" className="pl-3 text-left">
+                        {field.value ? format(field.value, "PPP") : "Select a date"}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
                     </FormControl>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -122,12 +120,10 @@ export default function TransactionForm({
           name="name"
           render={({ field }) => (
             <FormItem>
-              <div className="flex items-center space-x-2">
-                <FormLabel className="w-1/3 text-right">Name</FormLabel>
-                <FormControl>
-                  <div className="w-2/3">
-                    <Input placeholder="Transaction name" {...field} list="transaction-names" />
-                  </div>
+              <div className="flex items-center justify-end space-x-2">
+                <FormLabel className="text-right">Name</FormLabel>
+                <FormControl className="w-2/3">
+                  <Input placeholder="Transaction name" {...field} list="transaction-names" autoComplete="off" />
                 </FormControl>
                 <datalist id="transaction-names">
                   {existingNames.map((name) => (
@@ -145,12 +141,10 @@ export default function TransactionForm({
           name="amount"
           render={({ field }) => (
             <FormItem>
-              <div className="flex items-center space-x-2">
-                <FormLabel className="w-1/3 text-right">Amount</FormLabel>
-                <FormControl>
-                  <div className="w-2/3">
-                    <Input type="number" placeholder="0" {...field} />
-                  </div>
+              <div className="flex items-center justify-end space-x-2">
+                <FormLabel className="text-right">Amount</FormLabel>
+                <FormControl className="w-2/3">
+                  <Input type="number" placeholder="0" {...field} />
                 </FormControl>
               </div>
               <FormMessage className="ml-[35%]" />
@@ -163,15 +157,13 @@ export default function TransactionForm({
           name="category"
           render={({ field }) => (
             <FormItem>
-              <div className="flex items-center space-x-2">
-                <FormLabel className="w-1/3 text-right">Category</FormLabel>
+              <div className="flex items-center justify-end space-x-2">
+                <FormLabel className="text-right">Category</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value} name={field.name}>
-                  <FormControl>
-                    <div className="w-2/3">
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                    </div>
+                  <FormControl className="w-2/3">
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
                   </FormControl>
                   <SelectContent>
                     {buckets.map((bucket) => (
@@ -192,12 +184,10 @@ export default function TransactionForm({
           name="notes"
           render={({ field }) => (
             <FormItem>
-              <div className="flex items-center space-x-2">
-                <FormLabel className="w-1/3 text-right">Notes</FormLabel>
-                <FormControl>
-                  <div className="w-2/3">
-                    <Input placeholder="Notes" {...field} list="transaction-notes" />
-                  </div>
+              <div className="flex items-center justify-end space-x-2">
+                <FormLabel className="text-right">Notes</FormLabel>
+                <FormControl className="w-2/3">
+                  <Input placeholder="Notes" {...field} list="transaction-notes" />
                 </FormControl>
                 <datalist id="transaction-notes">
                   {existingNotes.map((note) => (

@@ -67,12 +67,10 @@ export default function BucketForm({ defaultValues, onSubmit, onDelete, onCancel
           name="category"
           render={({ field }) => (
             <FormItem>
-              <div className="flex items-center space-x-2">
-                <FormLabel className="w-1/3 text-right">Category</FormLabel>
-                <FormControl>
-                  <div className="w-2/3">
-                    <Input placeholder="Enter category" {...field} />
-                  </div>
+              <div className="flex items-center justify-end space-x-2">
+                <FormLabel className="text-right">Category</FormLabel>
+                <FormControl className="w-2/3">
+                  <Input placeholder="Enter category" {...field} />
                 </FormControl>
               </div>
               <FormMessage className="ml-[35%]" />
@@ -85,21 +83,19 @@ export default function BucketForm({ defaultValues, onSubmit, onDelete, onCancel
           name="amount"
           render={({ field }) => (
             <FormItem>
-              <div className="flex items-center space-x-2">
-                <FormLabel className="w-1/3 text-right">Budget Amount</FormLabel>
-                <FormControl>
-                  <div className="w-2/3">
-                    <Input
-                      type="number"
-                      placeholder="0.00"
-                      {...field}
-                      onChange={(e) => {
-                        //remove leading zeros
-                        e.target.value = e.target.value.replace(/^0+(?=\d)/, "")
-                        field.onChange(+e.target.value)
-                      }}
-                    />
-                  </div>
+              <div className="flex items-center justify-end space-x-2">
+                <FormLabel className="text-right">Budget Amount</FormLabel>
+                <FormControl className="w-2/3">
+                  <Input
+                    type="number"
+                    placeholder="0.00"
+                    {...field}
+                    onChange={(e) => {
+                      //remove leading zeros
+                      e.target.value = e.target.value.replace(/^0+(?=\d)/, "")
+                      field.onChange(+e.target.value)
+                    }}
+                  />
                 </FormControl>
               </div>
               <FormMessage className="ml-[35%]" />
@@ -114,7 +110,7 @@ export default function BucketForm({ defaultValues, onSubmit, onDelete, onCancel
               name="month"
               render={({ field }) => (
                 <FormItem>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center justify-end space-x-2">
                     <FormLabel>Month</FormLabel>
                     <Select
                       onValueChange={(value) => {
@@ -123,12 +119,10 @@ export default function BucketForm({ defaultValues, onSubmit, onDelete, onCancel
                       value={listMonths.find((month) => month.id === field.value)?.name || ""}
                       name={field.name}
                     >
-                      <FormControl>
-                        <div className="w-2/3">
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select Month" />
-                          </SelectTrigger>
-                        </div>
+                      <FormControl className="w-2/3">
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select Month" />
+                        </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         {listMonths.map((month) => (
@@ -153,15 +147,13 @@ export default function BucketForm({ defaultValues, onSubmit, onDelete, onCancel
                 <FormItem>
                   <div className="flex items-center space-x-2">
                     <FormLabel>Year</FormLabel>
-                    <FormControl>
-                      <div className="w-full">
-                        <Input
-                          type="number"
-                          placeholder="Enter Year"
-                          {...field}
-                          onChange={(e) => field.onChange(+e.target.value)}
-                        />
-                      </div>
+                    <FormControl className="w-full">
+                      <Input
+                        type="number"
+                        placeholder="Enter Year"
+                        {...field}
+                        onChange={(e) => field.onChange(+e.target.value)}
+                      />
                     </FormControl>
                     <FormMessage />
                   </div>
