@@ -1,6 +1,6 @@
 "use client"
 
-import { Bucket } from "@/lib/db/buckets"
+import { BucketWithSum } from "./list-buckets"
 import {
   Dialog,
   DialogTrigger,
@@ -9,11 +9,12 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog"
+import { Progress } from "@/components/ui/progress"
 import { useState } from "react"
 import AddBucket from "./add-bucket"
 
 interface BucketProps {
-  bucket: Bucket
+  bucket: BucketWithSum
   OnEditBucket: (() => void)[]
 }
 
@@ -25,14 +26,21 @@ export default function BucketItem({ bucket, OnEditBucket }: BucketProps) {
       <DialogTrigger asChild>
         <li
           onClick={() => setDialogOpen(true)}
-          className="group flex cursor-pointer items-center justify-between rounded-lg p-2 transition-colors hover:bg-muted"
+          className="group flex cursor-pointer items-center justify-between rounded-lg px-4 py-3 transition-colors hover:bg-muted/50"
         >
-          <div className="flex min-w-0 flex-1 items-center gap-2">
-            <div className="min-w-0 flex-1">
-              <h3 className="truncate font-medium text-primary">{bucket.category}</h3>
+          <div className="flex h-12 w-full items-center justify-between gap-2">
+            <div className="h-full w-20 align-top">
+              <h3 className="truncate text-primary">{bucket.category}</h3>
             </div>
-            <div className="w-[20%] flex-shrink-0 text-right">
-              <span className="font-medium text-muted-foreground">${Math.abs(bucket.amount).toFixed(2)}</span>
+            <div className="h-full flex-1">
+              <Progress value={bucket.transactions_sum} max={bucket.amount} className="h-4 text-red-400" />
+              <div className="mt-1 flex justify-between text-sm text-muted-foreground">
+                <span>{((bucket.transactions_sum ?? 0 / bucket.amount) * 100).toFixed(0)}%</span>
+                <span>${bucket.amount.toFixed(2)}</span>
+              </div>
+            </div>
+            <div className="h-full w-20 text-right align-top">
+              <span className="text-muted-foreground">${Math.abs(bucket.transactions_sum ?? 0).toFixed(2)}</span>
             </div>
           </div>
         </li>

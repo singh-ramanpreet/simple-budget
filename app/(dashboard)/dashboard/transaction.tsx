@@ -44,7 +44,7 @@ export default function TransactionItem({ transaction, OnEditTransaction }: Tran
               <h3 className="truncate font-medium text-primary">{transaction.name}</h3>
               <p className="truncate text-sm text-muted-foreground">{transaction.notes}</p>
             </div>
-            <div className="w-[20%] flex-shrink-0">
+            <div className="w-[25%] flex-shrink-0">
               <h3 className="truncate font-medium text-primary">{transaction.category}</h3>
             </div>
             <div className="w-[20%] flex-shrink-0 text-right">

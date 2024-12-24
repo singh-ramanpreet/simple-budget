@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { authClient } from "@/lib/auth/client"
-import { Bucket, fetchBuckets } from "@/lib/db/buckets"
+import { Bucket, fetchBuckets, fetchBucketTransactionsSum } from "@/lib/db/buckets"
 import BucketItem from "./bucket"
 
 interface ListBucketsProps {
@@ -13,8 +13,12 @@ interface ListBucketsProps {
   OnEditBucket: (() => void)[]
 }
 
+export interface BucketWithSum extends Bucket {
+  transactions_sum: number | undefined
+}
+
 export default function ListBuckets({ refresh, month, year, OnEditBucket }: ListBucketsProps) {
-  const [buckets, setBuckets] = useState<Bucket[]>([])
+  const [buckets, setBuckets] = useState<BucketWithSum[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [currentDate, setCurrentDate] = useState(new Date())
   const [filterMonth, setFilterMonth] = useState<number | undefined>(month)
@@ -29,7 +33,17 @@ export default function ListBuckets({ refresh, month, year, OnEditBucket }: List
         return
       }
       const result = await fetchBuckets(userId, filterMonth, filterYear)
-      setBuckets(result)
+      const result2 = await fetchBucketTransactionsSum(userId, filterMonth, filterYear)
+      setBuckets(
+        result.map((bucket) => {
+          const data = result2.find((b) => b.id === bucket.id)
+          return {
+            ...bucket,
+            transactions_sum: data?.sum,
+          }
+        })
+      )
+      console.log(result2)
     } finally {
       setIsLoading(false)
     }

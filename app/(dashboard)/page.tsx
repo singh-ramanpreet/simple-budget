@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { PlusCircle, ListOrdered, PaintBucket, Import } from "lucide-react"
+import { PlusCircle, ListOrdered, PaintBucket, Import, RotateCw } from "lucide-react"
 import ListTransactions from "./dashboard/list-transactions"
 import AddTransaction from "./dashboard/add-transaction"
 import { Button } from "@/components/ui/button"
@@ -74,9 +74,14 @@ export default function Dashboard() {
       </Card>
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ListOrdered className="h-5 w-5 text-muted-foreground" />
-            <span>Transactions</span>
+          <CardTitle className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <ListOrdered className="h-5 w-5 text-muted-foreground" />
+              <span>Transactions</span>
+            </div>
+            <Button onClick={handleTransactionsRefresh} className="ml-2" variant="outline">
+              <RotateCw className="h-5 w-5" />
+            </Button>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -85,9 +90,14 @@ export default function Dashboard() {
       </Card>
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <PaintBucket className="h-5 w-5 text-muted-foreground" />
-            <span>Buckets</span>
+          <CardTitle className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <PaintBucket className="h-5 w-5 text-muted-foreground" />
+              <span>Buckets</span>
+            </div>
+            <Button onClick={handleBucketsRefresh} className="ml-2" variant="outline">
+              <RotateCw className="h-5 w-5" />
+            </Button>
           </CardTitle>
         </CardHeader>
         <CardContent>

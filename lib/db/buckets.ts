@@ -1,8 +1,8 @@
 "use server"
 
-import { eq, and } from "drizzle-orm"
+import { eq, and, sql } from "drizzle-orm"
 import { db } from "./drizzle"
-import { budget_buckets } from "./schema"
+import { budget_buckets, budget_transactions } from "./schema"
 
 // type of bucket
 export type Bucket = typeof budget_buckets.$inferSelect
@@ -47,5 +47,22 @@ export async function fetchBuckets(userId: string, filterMonth?: number, filterY
     .select()
     .from(budget_buckets)
     .where(and(...conditions))
+    .all()
+}
+
+// Function to fetch all transactions sum for each bucket
+export async function fetchBucketTransactionsSum(userId: string, filterMonth?: number, filterYear?: number) {
+  const conditions = [eq(budget_buckets.userId, userId)]
+  if (filterMonth) conditions.push(eq(budget_buckets.month, filterMonth))
+  if (filterYear) conditions.push(eq(budget_buckets.year, filterYear))
+  return await db
+    .select({
+      id: budget_buckets.id,
+      sum: sql<number>`SUM(budget_transactions.amount)`,
+    })
+    .from(budget_buckets)
+    .leftJoin(budget_transactions, eq(budget_buckets.id, budget_transactions.category_id))
+    .where(and(...conditions))
+    .groupBy(budget_buckets.id)
     .all()
 }
