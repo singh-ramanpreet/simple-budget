@@ -9,6 +9,8 @@ export type Bucket = typeof budget_buckets.$inferSelect
 
 // Function to add a bucket
 export async function addBucket(bucket: typeof budget_buckets.$inferInsert) {
+  // trim whitespace from category
+  bucket.category = bucket.category?.trim()
   await db.insert(budget_buckets).values(bucket).run()
 }
 
@@ -22,6 +24,8 @@ export async function deleteBucket(userId: string, id: number) {
 
 // Function to update a bucket
 export async function updateBucket(userId: string, id: number, bucket: typeof budget_buckets.$inferInsert) {
+  // trim whitespace from category
+  bucket.category = bucket.category?.trim()
   await db
     .update(budget_buckets)
     .set(bucket)

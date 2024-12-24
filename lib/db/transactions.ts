@@ -18,6 +18,9 @@ const transaction_columns = {
 
 // Function to add a transaction to the budget table
 export async function addTransaction(transaction: typeof budget_transactions.$inferInsert) {
+  // trim whitespace from name and notes
+  transaction.name = transaction.name?.trim()
+  transaction.notes = transaction.notes?.trim()
   await db.insert(budget_transactions).values(transaction).run()
 }
 
@@ -35,6 +38,9 @@ export async function updateTransaction(
   id: number,
   transaction: typeof budget_transactions.$inferInsert
 ) {
+  // trim whitespace from name and notes
+  transaction.name = transaction.name?.trim()
+  transaction.notes = transaction.notes?.trim()
   await db
     .update(budget_transactions)
     .set(transaction)
