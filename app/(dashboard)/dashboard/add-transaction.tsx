@@ -70,15 +70,15 @@ export default function AddTransaction({
       if (transactionId) {
         const transaction = await fetchTransaction(loggedUserId, transactionId)
         if (transaction) {
-          const date = new Date(transaction.budget_transactions.date)
+          const date = new Date(transaction.date)
           const bucketData = await fetchBuckets(loggedUserId, date.getMonth() + 1, date.getFullYear())
           setBuckets(bucketData)
           setDefaultValues({
             date: date,
-            name: transaction.budget_transactions.name,
-            amount: transaction.budget_transactions.amount.toString(),
-            category: transaction.budget_buckets?.category ?? "",
-            notes: transaction.budget_transactions.notes,
+            name: transaction.name,
+            amount: transaction.amount.toString(),
+            category: transaction.category ?? "",
+            notes: transaction.notes,
           })
         }
       }

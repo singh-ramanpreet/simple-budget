@@ -1,6 +1,6 @@
 "use server"
 
-import { eq, and, sql } from "drizzle-orm"
+import { eq, and, sql, asc } from "drizzle-orm"
 import { db } from "./drizzle"
 import { budget_buckets, budget_transactions } from "./schema"
 
@@ -47,6 +47,7 @@ export async function fetchBuckets(userId: string, filterMonth?: number, filterY
     .select()
     .from(budget_buckets)
     .where(and(...conditions))
+    .orderBy(asc(budget_buckets.amount))
     .all()
 }
 

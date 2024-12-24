@@ -37,7 +37,7 @@ export default function ListTransactions({
         return
       }
       const result = await fetchTransactions(userId, filterMonth, filterYear, filterCategoryId)
-      setTransactions(result.map((t) => ({ ...t.budget_transactions, category: t.budget_buckets?.category ?? "" })))
+      setTransactions(result)
     } finally {
       setIsLoading(false)
     }

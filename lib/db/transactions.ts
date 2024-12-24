@@ -1,10 +1,20 @@
 "use server"
 
-import { eq, and, sql } from "drizzle-orm"
+import { eq, and, sql, desc } from "drizzle-orm"
 import { db } from "./drizzle"
 import { budget_transactions, budget_buckets } from "./schema"
 
-export type Transaction = typeof budget_transactions.$inferSelect & { category: string }
+export type Transaction = typeof budget_transactions.$inferSelect & { category: string | null }
+
+const transaction_columns = {
+  id: budget_transactions.id,
+  userId: budget_transactions.userId,
+  date: budget_transactions.date,
+  name: budget_transactions.name,
+  amount: budget_transactions.amount,
+  category_id: budget_transactions.category_id,
+  notes: budget_transactions.notes,
+}
 
 // Function to add a transaction to the budget table
 export async function addTransaction(transaction: typeof budget_transactions.$inferInsert) {
@@ -35,7 +45,10 @@ export async function updateTransaction(
 // Function to fetch a transaction from the budget table
 export async function fetchTransaction(userId: string, id: number) {
   return await db
-    .select()
+    .select({
+      ...transaction_columns,
+      category: budget_buckets.category,
+    })
     .from(budget_transactions)
     .leftJoin(budget_buckets, eq(budget_transactions.category_id, budget_buckets.id))
     .where(and(eq(budget_transactions.id, id), eq(budget_transactions.userId, userId)))
@@ -57,10 +70,14 @@ export async function fetchTransactions(
   if (filterCategoryId) conditions.push(eq(budget_transactions.category_id, filterCategoryId))
 
   return await db
-    .select()
+    .select({
+      ...transaction_columns,
+      category: budget_buckets.category,
+    })
     .from(budget_transactions)
     .leftJoin(budget_buckets, eq(budget_transactions.category_id, budget_buckets.id))
     .where(and(...conditions))
+    .orderBy(desc(budget_transactions.date))
     .all()
 }
 
@@ -68,21 +85,19 @@ export async function fetchTransactions(
 // create unqiue list of transaction names
 export async function fetchTransactionNames(userId: string) {
   const result = await db
-    .select({ name: budget_transactions.name })
+    .selectDistinct({ name: budget_transactions.name })
     .from(budget_transactions)
     .where(eq(budget_transactions.userId, userId))
     .all()
-  const uniqueNames = new Set(result.map((t) => t.name))
-  return Array.from(uniqueNames)
+  return result.map((t) => t.name)
 }
 
 // Function to fetch notes list of all transactions
 export async function fetchTransactionNotes(userId: string) {
   const result = await db
-    .select({ notes: budget_transactions.notes })
+    .selectDistinct({ notes: budget_transactions.notes })
     .from(budget_transactions)
     .where(eq(budget_transactions.userId, userId))
     .all()
-  const uniqueNotes = new Set(result.map((t) => t.notes))
-  return Array.from(uniqueNotes)
+  return result.map((t) => t.notes)
 }
