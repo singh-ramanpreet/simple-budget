@@ -1,6 +1,6 @@
 "use client"
 
-import { BucketWithSum } from "./list-buckets"
+import { BucketWithSum, percentage } from "./list-buckets"
 import {
   Dialog,
   DialogTrigger,
@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog"
 import { Progress } from "@/components/ui/progress"
 import { useState } from "react"
+import { cn } from "@/lib/utils"
 import AddBucket from "./add-bucket"
 
 interface BucketProps {
@@ -20,10 +21,6 @@ interface BucketProps {
 
 export default function BucketItem({ bucket, OnEditBucket }: BucketProps) {
   const [dialogOpen, setDialogOpen] = useState(false)
-
-  function percentage(spent: number | undefined, total: number) {
-    return ((spent ?? 0) / total) * 100
-  }
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -37,18 +34,20 @@ export default function BucketItem({ bucket, OnEditBucket }: BucketProps) {
               <h3 className="truncate text-primary">{bucket.category}</h3>
             </div>
             <div className="h-full flex-1">
-              <Progress
-                value={percentage(bucket.transactions_sum, bucket.amount)}
-                max={1}
-                className="h-4 text-red-400"
-              />
+              <Progress value={percentage(bucket.transactions_sum, bucket.amount)} max={1} className="h-4" />
               <div className="mt-1 flex justify-between text-sm text-muted-foreground">
                 <span>{percentage(bucket.transactions_sum, bucket.amount).toFixed(1)}%</span>
                 <span>${bucket.amount.toFixed(2)}</span>
               </div>
             </div>
             <div className="h-full w-20 text-right align-top">
-              <span className="text-muted-foreground">${Math.abs(bucket.transactions_sum ?? 0).toFixed(2)}</span>
+              <span
+                className={cn("text-muted-foreground", {
+                  "text-red-500": bucket.transactions_sum && bucket.transactions_sum > bucket.amount,
+                })}
+              >
+                ${Math.abs(bucket.transactions_sum ?? 0).toFixed(2)}
+              </span>
             </div>
           </div>
         </li>

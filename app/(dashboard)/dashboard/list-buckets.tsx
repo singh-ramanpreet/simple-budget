@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import { authClient } from "@/lib/auth/client"
 import { Bucket, fetchBuckets, fetchBucketTransactionsSum } from "@/lib/db/buckets"
 import BucketItem from "./bucket"
+import { Progress } from "@/components/ui/progress"
 
 interface ListBucketsProps {
   refresh: boolean
@@ -15,6 +16,18 @@ interface ListBucketsProps {
 
 export interface BucketWithSum extends Bucket {
   transactions_sum: number | undefined
+}
+
+export function percentage(spent: number | undefined, total: number) {
+  return ((spent ?? 0) / total) * 100
+}
+
+function buckets_total_amount(buckets: BucketWithSum[]) {
+  return buckets.reduce((acc, b) => acc + b.amount, 0)
+}
+
+function buckets_total_transactions_sum(buckets: BucketWithSum[]) {
+  return buckets.reduce((acc, b) => acc + (b.transactions_sum ?? 0), 0)
 }
 
 export default function ListBuckets({ refresh, month, year, OnEditBucket }: ListBucketsProps) {
@@ -43,7 +56,6 @@ export default function ListBuckets({ refresh, month, year, OnEditBucket }: List
           }
         })
       )
-      console.log(result2)
     } finally {
       setIsLoading(false)
     }
@@ -89,6 +101,31 @@ export default function ListBuckets({ refresh, month, year, OnEditBucket }: List
       </div>
 
       <ul>
+        <li className="group flex items-center justify-between rounded-lg px-4 py-3">
+          <div className="flex h-12 w-full items-center justify-between gap-2">
+            <div className="h-full w-20 align-top">
+              <h3 className="truncate text-primary">Total</h3>
+            </div>
+            <div className="h-full flex-1">
+              <Progress
+                value={percentage(buckets_total_transactions_sum(buckets), buckets_total_amount(buckets))}
+                max={1}
+                className="h-4"
+              />
+              <div className="mt-1 flex justify-between text-sm text-muted-foreground">
+                <span>
+                  {percentage(buckets_total_transactions_sum(buckets), buckets_total_amount(buckets)).toFixed(1)}%
+                </span>
+                <span>${buckets_total_amount(buckets).toFixed(1)}</span>
+              </div>
+            </div>
+            <div className="h-full w-20 text-right align-top">
+              <span className="text-muted-foreground">
+                ${Math.abs(buckets_total_transactions_sum(buckets)).toFixed(2)}
+              </span>
+            </div>
+          </div>
+        </li>
         {buckets.map((bucket) => (
           <BucketItem key={bucket.id} bucket={bucket} OnEditBucket={OnEditBucket} />
         ))}
