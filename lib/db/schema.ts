@@ -1,4 +1,5 @@
-import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core"
+import { sql } from "drizzle-orm"
+import { sqliteTable, text, integer, real, uniqueIndex } from "drizzle-orm/sqlite-core"
 
 // table to budget transactions
 export const budget_transactions = sqliteTable("budget_transactions", {
@@ -16,16 +17,20 @@ export const budget_transactions = sqliteTable("budget_transactions", {
 })
 
 // table for budget buckets
-export const budget_buckets = sqliteTable("budget_buckets", {
-  id: integer({ mode: "number" }).primaryKey({ autoIncrement: true }),
-  userId: text("userId")
-    .notNull()
-    .references(() => user.id),
-  month: integer("month").notNull(),
-  year: integer("year").notNull().default(new Date().getFullYear()),
-  category: text("category").default("").notNull(),
-  amount: real("amount").default(0).notNull(),
-})
+export const budget_buckets = sqliteTable(
+  "budget_buckets",
+  {
+    id: integer({ mode: "number" }).primaryKey({ autoIncrement: true }),
+    userId: text("userId")
+      .notNull()
+      .references(() => user.id),
+    month: integer("month").notNull(),
+    year: integer("year").notNull().default(new Date().getFullYear()),
+    category: text("category").default("").notNull(),
+    amount: real("amount").default(0).notNull(),
+  },
+  (table) => [uniqueIndex("uniqueCategoryPerMonthYear").on(sql`lower(${table.category})`, table.month, table.year)]
+)
 
 // better-auth generated schema
 // ----- start of schema -----
