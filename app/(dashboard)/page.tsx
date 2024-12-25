@@ -17,6 +17,7 @@ import {
 import ListBuckets from "./dashboard/list-buckets"
 import AddBucket from "./dashboard/add-bucket"
 import FilterTransaction from "./dashboard/filter-transaction"
+import CopyBucket from "./dashboard/copy-bucket"
 
 export default function Dashboard() {
   const [refreshTransactions, setRefreshTransactions] = useState(false)
@@ -170,14 +171,15 @@ export default function Dashboard() {
                   onPointerDownOutside={(e) => {
                     e.preventDefault()
                   }}
+                  onOpenAutoFocus={(e) => {
+                    e.preventDefault()
+                  }}
                 >
                   <DialogHeader>
                     <DialogTitle className="text-center">Copy Buckets</DialogTitle>
-                    <DialogDescription className="text-center">
-                      Copy buckets from the previous month to the current month.
-                    </DialogDescription>
+                    <DialogDescription className="text-center">Copy buckets from the previous month.</DialogDescription>
                   </DialogHeader>
-                  {/* <AddBucket onAddBucket={[handleRefresh, handleDialog]} onCanceled={handleDialog} /> */}
+                  <CopyBucket onClose={handleCopyDialog} onCopy={handleBucketsRefresh} />
                 </DialogContent>
               </Dialog>
             </div>
