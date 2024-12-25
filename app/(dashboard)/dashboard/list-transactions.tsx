@@ -98,24 +98,25 @@ export default function ListTransactions({
   }
 
   const generatePagination = () => {
-    if (totalPages <= 7) {
-      // Show all pages if total is 7 or less
+    if (totalPages <= 5) {
+      // Show all pages if total is 5 or less
       return Array.from({ length: totalPages }, (_, i) => i + 1)
     }
 
     if (currentPage <= 3) {
       // Near the start
-      return [1, 2, 3, 4, "ellipsis", totalPages]
+      return [1, 2, 3, "ellipsis", totalPages]
     }
 
     if (currentPage >= totalPages - 2) {
       // Near the end
-      return [1, "ellipsis", totalPages - 3, totalPages - 2, totalPages - 1, totalPages]
+      return [1, "ellipsis", totalPages - 2, totalPages - 1, totalPages]
     }
 
     // In the middle
-    return [1, "ellipsis", currentPage - 1, currentPage, currentPage + 1, "ellipsis", totalPages]
+    return [1, "ellipsis", currentPage, "ellipsis", totalPages]
   }
+
   const groupTransactionsByDay = (transactions: Transaction[]) => {
     return transactions.reduce(
       (groups, transaction) => {
