@@ -117,6 +117,21 @@ export default function ListTransactions({
     return [1, "ellipsis", currentPage - 1, currentPage, currentPage + 1, "ellipsis", totalPages]
   }
 
+  const groupTransactionsByDay = (transactions: Transaction[]) => {
+    return transactions.reduce(
+      (groups, transaction) => {
+        const date = new Date(transaction.date)
+        const dayOfWeek = date.toLocaleString("default", { weekday: "long" })
+        if (!groups[dayOfWeek]) {
+          groups[dayOfWeek] = []
+        }
+        groups[dayOfWeek].push(transaction)
+        return groups
+      },
+      {} as Record<string, Transaction[]>
+    )
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -133,11 +148,19 @@ export default function ListTransactions({
         </button>
       </div>
 
-      <ul>
-        {transactions.map((transaction) => (
-          <TransactionItem key={transaction.id} transaction={transaction} OnEditTransaction={OnEditTransaction} />
+      <div className="space-y-2">
+        {Object.entries(groupTransactionsByDay(transactions)).map(([dayOfWeek, dayTransactions]) => (
+          <div key={dayOfWeek} className="space-y-2">
+            <h3 className="text-sm text-muted-foreground">{dayOfWeek}</h3>
+            <ul className="space-y-1">
+              {dayTransactions.map((transaction) => (
+                <TransactionItem key={transaction.id} transaction={transaction} OnEditTransaction={OnEditTransaction} />
+              ))}
+            </ul>
+          </div>
         ))}
-      </ul>
+      </div>
+
       <Pagination>
         <PaginationContent>
           <PaginationItem>
