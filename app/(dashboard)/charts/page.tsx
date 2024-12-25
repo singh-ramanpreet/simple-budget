@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { Pie, PieChart, Cell, Tooltip } from "recharts"
+import { Pie, PieChart, Cell, Tooltip, ResponsiveContainer } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 // import { ChartConfig, ChartContainer } from "@/components/ui/chart"
@@ -81,27 +81,29 @@ export default function Component() {
               </button>
             </div>
             {buckets.length > 0 ? (
-              <PieChart width={350} height={250}>
-                <Pie
-                  data={buckets}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={true}
-                  label={({ category, amount }) => `${category} ${percentage(amount, totalAmount).toFixed(1)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="amount"
-                  nameKey="category"
-                >
-                  {buckets.map((bucket) => (
-                    <Cell key={`cell-${bucket.category}`} fill={getCategoryColor(bucket.category)} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  formatter={(value) => `$${Number(value).toFixed(2)}`}
-                  labelFormatter={(category) => `${category}`}
-                />
-              </PieChart>
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie
+                    data={buckets}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={true}
+                    label={({ category, amount }) => `${category} - ${percentage(amount, totalAmount).toFixed(1)}%`}
+                    outerRadius={60}
+                    fill="#8884d8"
+                    dataKey="amount"
+                    nameKey="category"
+                  >
+                    {buckets.map((bucket) => (
+                      <Cell key={`cell-${bucket.category}`} fill={getCategoryColor(bucket.category)} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value) => `$${Number(value).toFixed(2)}`}
+                    labelFormatter={(category) => `${category}`}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
             ) : (
               <p className="text-muted-foreground">No data available for this period</p>
             )}
