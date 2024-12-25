@@ -66,7 +66,9 @@ export async function fetchTransactions(
   userId: string,
   filterMonth?: number,
   filterYear?: number,
-  filterCategoryId?: number
+  filterCategoryId?: number,
+  limitForPagination?: number,
+  offsetForPagination?: number
 ) {
   const conditions = [eq(budget_transactions.userId, userId)]
 
@@ -79,11 +81,14 @@ export async function fetchTransactions(
     .select({
       ...transaction_columns,
       category: budget_buckets.category,
+      total_count: sql<number>`count(*) over()`,
     })
     .from(budget_transactions)
     .leftJoin(budget_buckets, eq(budget_transactions.category_id, budget_buckets.id))
     .where(and(...conditions))
     .orderBy(desc(budget_transactions.date))
+    .limit(limitForPagination ?? -1)
+    .offset(offsetForPagination ?? 0)
     .all()
 }
 

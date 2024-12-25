@@ -5,6 +5,15 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import { authClient } from "@/lib/auth/client"
 import { Transaction, fetchTransactions } from "@/lib/db/transactions"
 import TransactionItem from "./transaction"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationPrevious,
+  PaginationLink,
+  PaginationEllipsis,
+  PaginationNext,
+} from "@/components/ui/pagination"
 
 interface ListTransactionsProps {
   refresh: boolean
@@ -27,6 +36,9 @@ export default function ListTransactions({
   const [filterMonth, setFilterMonth] = useState<number | undefined>()
   const [filterYear, setFilterYear] = useState<number | undefined>()
   const filterCategoryId = categoryId
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const itemsPerPage = 10
 
   const refreshTransactions = useCallback(async () => {
     setIsLoading(true)
@@ -36,12 +48,21 @@ export default function ListTransactions({
       if (!userId) {
         return
       }
-      const result = await fetchTransactions(userId, filterMonth, filterYear, filterCategoryId)
+      const result = await fetchTransactions(
+        userId,
+        filterMonth,
+        filterYear,
+        filterCategoryId,
+        itemsPerPage,
+        (currentPage - 1) * itemsPerPage
+      )
       setTransactions(result)
+      console.log(result)
+      setTotalPages(Math.ceil(result.length > 0 ? result[0].total_count / itemsPerPage : 0))
     } finally {
       setIsLoading(false)
     }
-  }, [filterMonth, filterYear, filterCategoryId])
+  }, [filterMonth, filterYear, filterCategoryId, currentPage])
 
   useEffect(() => {
     refreshTransactions()
@@ -72,6 +93,30 @@ export default function ListTransactions({
     return <div>Loading transactions...</div>
   }
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+  }
+
+  const generatePagination = () => {
+    if (totalPages <= 7) {
+      // Show all pages if total is 7 or less
+      return Array.from({ length: totalPages }, (_, i) => i + 1)
+    }
+
+    if (currentPage <= 3) {
+      // Near the start
+      return [1, 2, 3, 4, "ellipsis", totalPages]
+    }
+
+    if (currentPage >= totalPages - 2) {
+      // Near the end
+      return [1, "ellipsis", totalPages - 3, totalPages - 2, totalPages - 1, totalPages]
+    }
+
+    // In the middle
+    return [1, "ellipsis", currentPage - 1, currentPage, currentPage + 1, "ellipsis", totalPages]
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -93,6 +138,39 @@ export default function ListTransactions({
           <TransactionItem key={transaction.id} transaction={transaction} OnEditTransaction={OnEditTransaction} />
         ))}
       </ul>
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+              className={`cursor-pointer ${currentPage === 1 ? "pointer-events-none opacity-50" : ""}`}
+            />
+          </PaginationItem>
+
+          {generatePagination().map((page, i) => (
+            <PaginationItem key={i}>
+              {page === "ellipsis" ? (
+                <PaginationEllipsis />
+              ) : (
+                <PaginationLink
+                  onClick={() => handlePageChange(page as number)}
+                  isActive={currentPage === page}
+                  className="cursor-pointer"
+                >
+                  {page}
+                </PaginationLink>
+              )}
+            </PaginationItem>
+          ))}
+
+          <PaginationItem>
+            <PaginationNext
+              onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+              className={`cursor-pointer ${currentPage === totalPages ? "pointer-events-none opacity-50" : ""}`}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </div>
   )
 }
