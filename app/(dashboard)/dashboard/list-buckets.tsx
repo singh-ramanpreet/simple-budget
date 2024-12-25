@@ -22,7 +22,7 @@ export function percentage(spent: number | undefined, total: number) {
   return ((spent ?? 0) / total) * 100
 }
 
-function buckets_total_amount(buckets: BucketWithSum[]) {
+export function buckets_total_amount(buckets: BucketWithSum[] | Bucket[]) {
   return buckets.reduce((acc, b) => acc + b.amount, 0)
 }
 
