@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog"
 import ListBuckets from "./dashboard/list-buckets"
 import AddBucket from "./dashboard/add-bucket"
+import FilterTransaction from "./dashboard/filter-transaction"
 
 export default function Dashboard() {
   const [refreshTransactions, setRefreshTransactions] = useState(false)
@@ -23,6 +24,9 @@ export default function Dashboard() {
   const [isTransactionDialogOpen, setIsTransactionDialogOpen] = useState(false)
   const [isBucketDialogOpen, setIsBucketDialogOpen] = useState(false)
   const [isCopyDialogOpen, setIsCopyDialogOpen] = useState(false)
+  const [transactionCategoryIdFilter, setTransactionCategoryIdFilter] = useState<number | undefined>(undefined)
+  const [transactionCategoryMonthFilter, setTransactionCategoryMonthFilter] = useState<number | undefined>(undefined)
+  const [transactionCategoryYearFilter, setTransactionCategoryYearFilter] = useState<number | undefined>(undefined)
 
   const handleTransactionDialog = () => {
     setIsTransactionDialogOpen(!isTransactionDialogOpen)
@@ -42,6 +46,18 @@ export default function Dashboard() {
 
   const handleBucketsRefresh = () => {
     setRefreshBuckets(!refreshBuckets)
+  }
+
+  const handleFilterTransaction = (category: number, year: number | undefined, month: number | undefined) => {
+    setTransactionCategoryIdFilter(category)
+    setTransactionCategoryYearFilter(year)
+    setTransactionCategoryMonthFilter(month)
+  }
+
+  const handleResetTransactionFilter = () => {
+    setTransactionCategoryIdFilter(undefined)
+    setTransactionCategoryYearFilter(undefined)
+    setTransactionCategoryMonthFilter(undefined)
   }
 
   return (
@@ -79,13 +95,22 @@ export default function Dashboard() {
               <ListOrdered className="h-5 w-5 text-muted-foreground" />
               <span>Transactions</span>
             </div>
-            <Button onClick={handleTransactionsRefresh} className="ml-2" variant="outline">
-              <RotateCw className="h-5 w-5" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <FilterTransaction onSave={handleFilterTransaction} onReset={handleResetTransactionFilter} />
+              <Button onClick={handleTransactionsRefresh} className="ml-2" variant="outline">
+                <RotateCw className="h-5 w-5" />
+              </Button>
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <ListTransactions refresh={refreshTransactions} OnEditTransaction={[handleTransactionsRefresh]} />
+          <ListTransactions
+            refresh={refreshTransactions}
+            OnEditTransaction={[handleTransactionsRefresh]}
+            month={transactionCategoryMonthFilter}
+            year={transactionCategoryYearFilter}
+            categoryId={transactionCategoryIdFilter}
+          />
         </CardContent>
       </Card>
       <Card className="w-full max-w-md">

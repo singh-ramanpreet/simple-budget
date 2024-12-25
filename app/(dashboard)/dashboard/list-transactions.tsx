@@ -24,8 +24,8 @@ export default function ListTransactions({
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [currentDate, setCurrentDate] = useState(new Date())
-  const [filterMonth, setFilterMonth] = useState<number | undefined>(month)
-  const [filterYear, setFilterYear] = useState<number | undefined>(year)
+  const [filterMonth, setFilterMonth] = useState<number | undefined>()
+  const [filterYear, setFilterYear] = useState<number | undefined>()
   const filterCategoryId = categoryId
 
   const refreshTransactions = useCallback(async () => {
@@ -59,6 +59,13 @@ export default function ListTransactions({
 
   if (!filterMonth || !filterYear) {
     navigateMonth(0)
+  }
+
+  if (month && year) {
+    if (month !== filterMonth || year !== filterYear) {
+      const delta = (year - filterYear!) * 12 + (month - filterMonth!)
+      navigateMonth(delta)
+    }
   }
 
   if (isLoading) {
