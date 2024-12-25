@@ -155,7 +155,9 @@ export default function CopyBucket({ onClose, onCopy }: { onClose?: () => void; 
       onCopy?.()
       onClose?.()
     } catch (error) {
-      setError("Failed to copy buckets. Please try again.")
+      setError(
+        "Failed to copy buckets. Please try again. Error: " + (error instanceof Error ? error.message : "Unknown error")
+      )
       console.error(error)
     } finally {
       setIsLoading(false)

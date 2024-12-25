@@ -103,12 +103,10 @@ export default function AddTransaction({
       } else {
         await addTransaction(transactionData)
       }
-    } catch (error) {
-      console.error("Error adding transaction", error)
+      onAddTransaction.forEach((cb) => cb())
     } finally {
       setIsLoading(false)
     }
-    onAddTransaction.forEach((cb) => cb())
   }
 
   async function handleDateChange(date: Date) {

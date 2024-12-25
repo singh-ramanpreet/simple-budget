@@ -8,7 +8,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input"
 import { Loader2, Trash2 } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 
 const bucketFormSchema = z.object({
   category: z.string().min(1, "Category is required"),
@@ -28,6 +28,7 @@ interface BucketFormProps {
 }
 
 export default function BucketForm({ defaultValues, onSubmit, onDelete, onCancel, isLoading }: BucketFormProps) {
+  const [error, setError] = useState<string>("")
   const form = useForm<BucketFormValues>({
     resolver: zodResolver(bucketFormSchema),
     defaultValues: defaultValues ?? {
@@ -58,9 +59,21 @@ export default function BucketForm({ defaultValues, onSubmit, onDelete, onCancel
     { id: 12, name: "December   " },
   ]
 
+  async function handleFormSubmit(data: BucketFormValues) {
+    setError("")
+    try {
+      await onSubmit(data)
+    } catch (error) {
+      setError(
+        "Failed to save bucket. Please try again. Error: " + (error instanceof Error ? error.message : "Unknown error")
+      )
+      console.error(error)
+    }
+  }
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
         {/* category */}
         <FormField
           control={form.control}
@@ -162,6 +175,9 @@ export default function BucketForm({ defaultValues, onSubmit, onDelete, onCancel
             />
           </div>
         </div>
+
+        {error && <div className="mt-2 text-sm text-red-500">{error}</div>}
+
         <div className="flex justify-end space-x-4 pt-2">
           {onDelete && (
             <div className="flex w-1/3 justify-start">

@@ -15,9 +15,9 @@ import { useEffect, useState } from "react"
 
 export const transactionSchema = z.object({
   date: z.date(),
-  name: z.string().min(1),
-  amount: z.string().min(1),
-  category: z.string().min(1),
+  name: z.string().min(1, "Name must be at least 1 character"),
+  amount: z.string().min(1, "Amount is required"),
+  category: z.string().min(1, "Category is required"),
   notes: z.string().optional(),
 })
 
@@ -48,12 +48,13 @@ export default function TransactionForm({
   onDelete,
   isLoading,
 }: TransactionFormProps) {
+  const [error, setError] = useState<string>("")
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema),
     defaultValues: defaultValues ?? {
       date: new Date(),
       name: "",
-      amount: "",
+      amount: "0",
       category: "",
       notes: "",
     },
@@ -67,8 +68,18 @@ export default function TransactionForm({
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
 
   async function handleSubmit(values: TransactionFormValues) {
-    await onSubmit(values)
-    form.reset()
+    setError("")
+    try {
+      await onSubmit(values)
+    } catch (error) {
+      setError(
+        "Failed to save transaction. Please try again. Error: " +
+          (error instanceof Error ? error.message : "Unknown error")
+      )
+      console.error(error)
+    } finally {
+      form.reset()
+    }
   }
 
   async function handleCopy() {
@@ -201,6 +212,9 @@ export default function TransactionForm({
             </FormItem>
           )}
         />
+
+        {error && <div className="mt-2 text-sm text-red-500">{error}</div>}
+
         <div className="flex justify-end space-x-4 pt-2">
           {onDelete && (
             <div className="flex w-1/4 justify-start">
