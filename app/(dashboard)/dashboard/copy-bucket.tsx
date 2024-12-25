@@ -87,7 +87,7 @@ export default function CopyBucket({ onClose, onCopy }: { onClose?: () => void; 
       const { data: session } = await authClient.getSession()
       const userId = session?.user?.id || ""
       setLoggedUserId(userId)
-      const result = await fetchBuckets(userId)
+      const result = await fetchBuckets(userId, targetMonth, undefined, true) // inverted filter
       // sort by year and month descending
       result.sort((a, b) => {
         if (a.year === b.year) {
@@ -98,7 +98,7 @@ export default function CopyBucket({ onClose, onCopy }: { onClose?: () => void; 
       setBucket(result)
     }
     initialize()
-  }, [])
+  }, [targetMonth])
 
   const table = useReactTable({
     data: bucket,

@@ -1,6 +1,6 @@
 "use server"
 
-import { eq, and, sql, asc } from "drizzle-orm"
+import { eq, and, sql, asc, not } from "drizzle-orm"
 import { db } from "./drizzle"
 import { budget_buckets, budget_transactions } from "./schema"
 
@@ -43,10 +43,12 @@ export async function fetchBucket(userId: string, id: number) {
 }
 
 // Function to fetch all buckets for a user
-export async function fetchBuckets(userId: string, filterMonth?: number, filterYear?: number) {
+export async function fetchBuckets(userId: string, filterMonth?: number, filterYear?: number, invertedFilter = false) {
   const conditions = [eq(budget_buckets.userId, userId)]
-  if (filterMonth) conditions.push(eq(budget_buckets.month, filterMonth))
-  if (filterYear) conditions.push(eq(budget_buckets.year, filterYear))
+  if (filterMonth)
+    conditions.push(invertedFilter ? not(eq(budget_buckets.month, filterMonth)) : eq(budget_buckets.month, filterMonth))
+  if (filterYear)
+    conditions.push(invertedFilter ? not(eq(budget_buckets.year, filterYear)) : eq(budget_buckets.year, filterYear))
   return await db
     .select()
     .from(budget_buckets)
