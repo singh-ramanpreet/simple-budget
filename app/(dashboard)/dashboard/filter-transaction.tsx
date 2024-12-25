@@ -73,7 +73,7 @@ export default function FilterTransaction({ onSave, onReset }: FilterTransaction
           {selected ? <FilterX className="h-5 w-5" /> : <Filter className="h-5 w-5" />}
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="text-center">Category Filter</DialogTitle>
           <DialogDescription></DialogDescription>
