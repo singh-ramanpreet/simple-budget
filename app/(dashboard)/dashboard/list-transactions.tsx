@@ -116,20 +116,23 @@ export default function ListTransactions({
     // In the middle
     return [1, "ellipsis", currentPage - 1, currentPage, currentPage + 1, "ellipsis", totalPages]
   }
-
   const groupTransactionsByDay = (transactions: Transaction[]) => {
     return transactions.reduce(
       (groups, transaction) => {
         const date = new Date(transaction.date)
-        const dayOfWeek = date.toLocaleString("default", { weekday: "long" })
-        if (!groups[dayOfWeek]) {
-          groups[dayOfWeek] = []
+        const day = date.toLocaleDateString("default", { day: "numeric", month: "long", year: "numeric" })
+        if (!groups[day]) {
+          groups[day] = []
         }
-        groups[dayOfWeek].push(transaction)
+        groups[day].push(transaction)
         return groups
       },
       {} as Record<string, Transaction[]>
     )
+  }
+  const getDayOfWeek = (date: Date) => {
+    const dt = new Date(date)
+    return dt.toLocaleDateString("default", { weekday: "long" })
   }
 
   return (
@@ -149,9 +152,9 @@ export default function ListTransactions({
       </div>
 
       <div className="space-y-2">
-        {Object.entries(groupTransactionsByDay(transactions)).map(([dayOfWeek, dayTransactions]) => (
-          <div key={dayOfWeek} className="space-y-2">
-            <h3 className="text-sm text-muted-foreground">{dayOfWeek}</h3>
+        {Object.entries(groupTransactionsByDay(transactions)).map(([day, dayTransactions]) => (
+          <div key={day} className="space-y-2">
+            <h3 className="text-sm text-muted-foreground">{getDayOfWeek(new Date(day))}</h3>
             <ul className="space-y-1">
               {dayTransactions.map((transaction) => (
                 <TransactionItem key={transaction.id} transaction={transaction} OnEditTransaction={OnEditTransaction} />
