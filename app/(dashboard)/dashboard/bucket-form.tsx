@@ -64,9 +64,7 @@ export default function BucketForm({ defaultValues, onSubmit, onDelete, onCancel
     try {
       await onSubmit(data)
     } catch (error) {
-      setError(
-        "Failed to save bucket. Please try again. Error: " + (error instanceof Error ? error.message : "Unknown error")
-      )
+      setError("Failed to save bucket. Please try again.")
       console.error(error)
     }
   }

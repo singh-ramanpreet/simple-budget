@@ -72,10 +72,7 @@ export default function TransactionForm({
     try {
       await onSubmit(values)
     } catch (error) {
-      setError(
-        "Failed to save transaction. Please try again. Error: " +
-          (error instanceof Error ? error.message : "Unknown error")
-      )
+      setError("Failed to save transaction. Please try again.")
       console.error(error)
     } finally {
       form.reset()
