@@ -40,8 +40,7 @@ export default function AddTransaction({
   const [selectedMonth, setSelectedMonth] = useState(() => new Date().getMonth() + 1)
   const [selectedYear, setSelectedYear] = useState(() => new Date().getFullYear())
 
-  // Fetch bucket data and existing names/notes when the component is mounted
-  // and when the selected month/year changes
+  // Fetch existing names/notes when the component is mounted
   useEffect(() => {
     async function initializeData() {
       const { data: session } = await authClient.getSession()
@@ -49,16 +48,23 @@ export default function AddTransaction({
       setLoggedUserId(userId)
 
       if (userId) {
-        const bucketData = await fetchBuckets(userId, selectedMonth, selectedYear)
         const names = await fetchTransactionNames(userId)
         const notes = await fetchTransactionNotes(userId)
-        setBuckets(bucketData)
         setExistingNames(names)
         setExistingNotes(notes)
       }
     }
     initializeData()
-  }, [selectedMonth, selectedYear])
+  }, [])
+
+  // Reset the buckets when the month or year changes
+  useEffect(() => {
+    async function fetchNewBuckets() {
+      const bucketData = await fetchBuckets(loggedUserId, selectedMonth, selectedYear)
+      setBuckets(bucketData)
+    }
+    fetchNewBuckets()
+  }, [selectedMonth, selectedYear, loggedUserId])
 
   // Fetch transaction data if transactionId is provided
   // and set the default values when the component is mounted

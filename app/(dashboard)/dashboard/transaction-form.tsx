@@ -63,9 +63,7 @@ export default function TransactionForm({
   // Reset form when defaultValues change
   useEffect(() => {
     form.reset(defaultValues)
-    onDateChange(defaultValues?.date ?? new Date())
-    console.log("defaultValues changed")
-  }, [defaultValues, form, onDateChange])
+  }, [defaultValues, form])
 
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
 
@@ -111,14 +109,13 @@ export default function TransactionForm({
                       mode="single"
                       selected={field.value}
                       onSelect={(date) => {
-                        field.onChange(date)
                         if (date) {
+                          field.onChange(date)
                           onDateChange(date)
+                          setIsCalendarOpen(false)
                         }
-                        setIsCalendarOpen(false)
                       }}
                       defaultMonth={field.value}
-                      initialFocus
                     />
                   </PopoverContent>
                 </Popover>
