@@ -63,7 +63,9 @@ export default function TransactionForm({
   // Reset form when defaultValues change
   useEffect(() => {
     form.reset(defaultValues)
-  }, [defaultValues, form])
+    onDateChange(defaultValues?.date ?? new Date())
+    console.log("defaultValues changed")
+  }, [defaultValues, form, onDateChange])
 
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
 
