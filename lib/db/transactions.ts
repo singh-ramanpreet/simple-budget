@@ -16,6 +16,23 @@ const transaction_columns = {
   notes: budget_transactions.notes,
 }
 
+// check if category id has same month and year of the transaction being added/updated
+export async function checkMatchingMonthYear(userId: string, categoryId: number, date: Date) {
+  const result = await db
+    .selectDistinct({ id: budget_buckets.id })
+    .from(budget_buckets)
+    .where(
+      and(
+        eq(budget_buckets.userId, userId),
+        eq(budget_buckets.id, categoryId),
+        eq(sql`strftime('%m', ${budget_buckets.month})`, date.getMonth() + 1),
+        eq(sql`strftime('%Y', ${budget_buckets.month})`, date.getFullYear())
+      )
+    )
+    .get()
+  return result !== undefined
+}
+
 // Function to add a transaction to the budget table
 export async function addTransaction(transaction: typeof budget_transactions.$inferInsert) {
   // trim whitespace from name and notes

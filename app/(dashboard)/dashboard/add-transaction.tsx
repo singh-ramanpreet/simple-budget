@@ -4,6 +4,7 @@ import { authClient } from "@/lib/auth/client"
 import * as z from "zod"
 import {
   addTransaction,
+  checkMatchingMonthYear,
   deleteTransaction,
   fetchTransaction,
   fetchTransactionNames,
@@ -60,6 +61,7 @@ export default function AddTransaction({
   // Reset the buckets when the month or year changes
   useEffect(() => {
     async function fetchNewBuckets() {
+      if (!loggedUserId) return
       const bucketData = await fetchBuckets(loggedUserId, selectedMonth, selectedYear)
       setBuckets(bucketData)
     }
@@ -101,7 +103,9 @@ export default function AddTransaction({
         date: formatISO(values.date),
         category_id: buckets.find((b) => b.category === values.category)?.id || 0,
       }
-
+      if (await checkMatchingMonthYear(loggedUserId, transactionData.category_id, values.date)) {
+        throw new Error("Category does not match the month and year of the transaction")
+      }
       if (transactionId) {
         await updateTransaction(loggedUserId, transactionId, transactionData)
       } else {
