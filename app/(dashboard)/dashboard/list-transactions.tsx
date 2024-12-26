@@ -57,7 +57,6 @@ export default function ListTransactions({
         (currentPage - 1) * itemsPerPage
       )
       setTransactions(result)
-      console.log(result)
       setTotalPages(Math.ceil(result.length > 0 ? result[0].total_count / itemsPerPage : 0))
     } finally {
       setIsLoading(false)

@@ -115,6 +115,7 @@ export default function TransactionForm({
                         }
                         setIsCalendarOpen(false)
                       }}
+                      defaultMonth={field.value}
                       initialFocus
                     />
                   </PopoverContent>

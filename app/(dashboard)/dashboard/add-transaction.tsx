@@ -49,11 +49,9 @@ export default function AddTransaction({
       setLoggedUserId(userId)
 
       if (userId) {
-        const [bucketData, names, notes] = await Promise.all([
-          fetchBuckets(userId, selectedMonth, selectedYear),
-          fetchTransactionNames(userId),
-          fetchTransactionNotes(userId),
-        ])
+        const bucketData = await fetchBuckets(userId, selectedMonth, selectedYear)
+        const names = await fetchTransactionNames(userId)
+        const notes = await fetchTransactionNotes(userId)
         setBuckets(bucketData)
         setExistingNames(names)
         setExistingNotes(notes)
