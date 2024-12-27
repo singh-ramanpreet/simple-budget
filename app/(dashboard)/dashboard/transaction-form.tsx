@@ -11,7 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { CalendarIcon, Loader2, Trash2 } from "lucide-react"
 import { format } from "date-fns"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
 export const transactionSchema = z.object({
   date: z.date(),
@@ -49,21 +49,13 @@ export default function TransactionForm({
   isLoading,
 }: TransactionFormProps) {
   const [error, setError] = useState<string>("")
+  const [copyButton, setCopyButton] = useState(onCopy ? true : false)
+  const [deleteButton, setDeleteButton] = useState(onDelete ? true : false)
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema),
-    defaultValues: defaultValues ?? {
-      date: new Date(),
-      name: "",
-      amount: "0",
-      category: "",
-      notes: "",
-    },
+    values: defaultValues,
+    defaultValues: { date: new Date(), name: "", amount: "0", category: "", notes: "" },
   })
-
-  // Reset form when defaultValues change
-  useEffect(() => {
-    form.reset(defaultValues)
-  }, [defaultValues, form])
 
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
 
@@ -81,6 +73,8 @@ export default function TransactionForm({
 
   async function handleCopy() {
     form.setValue("date", new Date())
+    setCopyButton(false)
+    setDeleteButton(false)
     onCopy?.()
   }
 
@@ -213,7 +207,7 @@ export default function TransactionForm({
         {error && <div className="mt-2 text-sm text-red-500">{error}</div>}
 
         <div className="flex justify-end space-x-4 pt-2">
-          {onDelete && (
+          {deleteButton && (
             <div className="flex w-1/4 justify-start">
               <Button
                 type="button"
@@ -226,7 +220,7 @@ export default function TransactionForm({
               </Button>
             </div>
           )}
-          {onCopy && (
+          {copyButton && (
             <div className="w-1/4">
               <Button type="button" onClick={handleCopy} variant="outline" className="w-full" disabled={isLoading}>
                 Copy

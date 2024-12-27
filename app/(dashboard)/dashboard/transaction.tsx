@@ -62,23 +62,16 @@ export default function TransactionItem({ transaction, OnEditTransaction }: Tran
           <DialogTitle className="text-center">{copied ? "New Transaction" : "Edit Transaction"}</DialogTitle>
           <DialogDescription></DialogDescription>
         </DialogHeader>
-        {copied ? (
-          <AddTransaction
-            onAddTransaction={OnEditTransaction}
-            onCanceled={() => {
-              setDialogOpen(false)
-              setCopied(false)
-            }}
-          />
-        ) : (
-          <AddTransaction
-            transactionId={transaction.id}
-            onAddTransaction={OnEditTransaction}
-            onCanceled={() => setDialogOpen(false)}
-            onCopy={handleCopy}
-            deleteButton={true}
-          />
-        )}
+        <AddTransaction
+          transactionId={transaction.id}
+          onAddTransaction={OnEditTransaction}
+          onCanceled={() => {
+            setDialogOpen(false)
+            setCopied(false)
+          }}
+          onCopy={handleCopy}
+          isEditing={true}
+        />
       </DialogContent>
     </Dialog>
   )

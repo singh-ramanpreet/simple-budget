@@ -21,7 +21,7 @@ interface AddTransactionProps {
   onAddTransaction: (() => void)[]
   onCanceled: () => void
   onCopy?: () => void
-  deleteButton?: boolean
+  isEditing?: boolean
   transactionId?: number
 }
 
@@ -29,17 +29,22 @@ export default function AddTransaction({
   onAddTransaction,
   onCanceled,
   onCopy,
-  deleteButton = false,
+  isEditing = false,
   transactionId = undefined,
 }: AddTransactionProps) {
+  const currentDate = new Date()
+  const currentMonth = currentDate.getMonth() + 1
+  const currentYear = currentDate.getFullYear()
+
   const [isLoading, setIsLoading] = useState(false)
-  const [loggedUserId, setLoggedUserId] = useState("")
+  const [loggedUserId, setLoggedUserId] = useState(undefined as string | undefined)
   const [buckets, setBuckets] = useState<Bucket[]>([])
+  const [trxId, setTrxId] = useState(transactionId)
   const [defaultValues, setDefaultValues] = useState<TransactionFormValues>()
   const [existingNames, setExistingNames] = useState<string[]>([])
   const [existingNotes, setExistingNotes] = useState<string[]>([])
-  const [selectedMonth, setSelectedMonth] = useState(() => new Date().getMonth() + 1)
-  const [selectedYear, setSelectedYear] = useState(() => new Date().getFullYear())
+  const [selectedMonth, setSelectedMonth] = useState<number | undefined>(isEditing ? undefined : currentMonth)
+  const [selectedYear, setSelectedYear] = useState<number | undefined>(isEditing ? undefined : currentYear)
 
   // Fetch existing names/notes when the component is mounted
   useEffect(() => {
@@ -61,53 +66,59 @@ export default function AddTransaction({
   // Reset the buckets when the month or year changes
   useEffect(() => {
     async function fetchNewBuckets() {
-      if (!loggedUserId) return
+      // return if undefined
+      if (!loggedUserId || !selectedMonth || !selectedYear) return
+      // Fetch buckets
       const bucketData = await fetchBuckets(loggedUserId, selectedMonth, selectedYear)
       setBuckets(bucketData)
     }
     fetchNewBuckets()
   }, [selectedMonth, selectedYear, loggedUserId])
 
-  // Fetch transaction data if transactionId is provided
-  // and set the default values when the component is mounted
-  // and when the transactionId changes
+  // Fetch transaction data if trxId is provided
+  // and set the default values when the trxId changes
   useEffect(() => {
     async function initializeTransactionValues() {
-      if (transactionId) {
-        const transaction = await fetchTransaction(loggedUserId, transactionId)
-        if (transaction) {
-          const date = new Date(transaction.date)
-          const bucketData = await fetchBuckets(loggedUserId, date.getMonth() + 1, date.getFullYear())
-          setBuckets(bucketData)
-          setDefaultValues({
-            date: date,
-            name: transaction.name,
-            amount: transaction.amount.toString(),
-            category: transaction.category ?? "",
-            notes: transaction.notes,
-          })
-        }
-      }
+      if (!loggedUserId || !trxId) return
+      // Fetch transaction data
+      const transaction = await fetchTransaction(loggedUserId, trxId)
+      if (!transaction) return
+      // get date and set the month and year
+      const date = new Date(transaction.date)
+      setSelectedMonth(date.getMonth() + 1)
+      setSelectedYear(date.getFullYear())
+      // Fetch buckets and set the default values
+      const bucketData = await fetchBuckets(loggedUserId, date.getMonth() + 1, date.getFullYear())
+      setBuckets(bucketData)
+      setDefaultValues({
+        date: date,
+        name: transaction.name,
+        amount: transaction.amount.toString(),
+        category: transaction.category ?? "",
+        notes: transaction.notes,
+      })
     }
     initializeTransactionValues()
-  }, [transactionId, loggedUserId])
+  }, [trxId, loggedUserId, selectedMonth, selectedYear])
 
   async function handleFormSubmit(values: z.infer<typeof transactionSchema>) {
+    if (!loggedUserId) return
     setIsLoading(true)
     try {
       const transactionData = {
         ...values,
-        id: transactionId,
+        id: trxId,
         userId: loggedUserId,
         amount: Number(parseFloat(values.amount).toFixed(2)),
         date: formatISO(values.date),
         category_id: buckets.find((b) => b.category === values.category)?.id || 0,
       }
-      if (await checkMatchingMonthYear(loggedUserId, transactionData.category_id, values.date)) {
+      const check = await checkMatchingMonthYear(loggedUserId, transactionData.category_id, values.date)
+      if (!check) {
         throw new Error("Category does not match the month and year of the transaction")
       }
-      if (transactionId) {
-        await updateTransaction(loggedUserId, transactionId, transactionData)
+      if (trxId) {
+        await updateTransaction(loggedUserId, trxId, transactionData)
       } else {
         await addTransaction(transactionData)
       }
@@ -123,15 +134,29 @@ export default function AddTransaction({
   }
 
   async function handleDelete() {
-    if (!transactionId) return
+    if (!loggedUserId) return
+    if (!trxId) return
     setIsLoading(true)
     try {
-      await deleteTransaction(loggedUserId, transactionId)
+      await deleteTransaction(loggedUserId, trxId)
       onCanceled()
       onAddTransaction.forEach((cb) => cb())
     } finally {
       setIsLoading(false)
+      setTrxId(undefined)
     }
+  }
+
+  async function handleCopy() {
+    setTrxId(undefined)
+    setSelectedMonth(currentMonth)
+    setSelectedYear(currentYear)
+    onCopy?.()
+  }
+
+  async function handleCancel() {
+    setTrxId(undefined)
+    onCanceled?.()
   }
 
   return (
@@ -142,9 +167,9 @@ export default function AddTransaction({
       buckets={buckets}
       onDateChange={handleDateChange}
       onSubmit={handleFormSubmit}
-      onCancel={onCanceled}
-      onCopy={onCopy}
-      onDelete={deleteButton ? handleDelete : undefined}
+      onCancel={handleCancel}
+      onCopy={isEditing ? handleCopy : undefined}
+      onDelete={isEditing ? handleDelete : undefined}
       isLoading={isLoading}
     />
   )
