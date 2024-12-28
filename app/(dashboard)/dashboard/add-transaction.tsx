@@ -65,14 +65,14 @@ export default function AddTransaction({
 
   // Reset the buckets when the month or year changes
   useEffect(() => {
-    async function fetchNewBuckets() {
+    async function fetch() {
       // return if undefined
       if (!loggedUserId || !selectedMonth || !selectedYear) return
       // Fetch buckets
       const bucketData = await fetchBuckets(loggedUserId, selectedMonth, selectedYear)
       setBuckets(bucketData)
     }
-    fetchNewBuckets()
+    fetch()
   }, [selectedMonth, selectedYear, loggedUserId])
 
   // Fetch transaction data if trxId is provided
@@ -80,16 +80,18 @@ export default function AddTransaction({
   useEffect(() => {
     async function initializeTransactionValues() {
       if (!loggedUserId || !trxId) return
+
       // Fetch transaction data
       const transaction = await fetchTransaction(loggedUserId, trxId)
       if (!transaction) return
+
       // get date and set the month and year
       const date = new Date(transaction.date)
-      setSelectedMonth(date.getMonth() + 1)
-      setSelectedYear(date.getFullYear())
-      // Fetch buckets and set the default values
-      const bucketData = await fetchBuckets(loggedUserId, date.getMonth() + 1, date.getFullYear())
-      setBuckets(bucketData)
+      await handleDateChange(date)
+
+      // buckets must be fetched first
+      if (buckets.length === 0) return
+
       setDefaultValues({
         date: date,
         name: transaction.name,
@@ -99,7 +101,7 @@ export default function AddTransaction({
       })
     }
     initializeTransactionValues()
-  }, [trxId, loggedUserId])
+  }, [trxId, loggedUserId, buckets.length])
 
   async function handleFormSubmit(values: z.infer<typeof transactionSchema>) {
     if (!loggedUserId) return
