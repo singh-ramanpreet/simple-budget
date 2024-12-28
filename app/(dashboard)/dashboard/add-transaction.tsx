@@ -99,7 +99,7 @@ export default function AddTransaction({
       })
     }
     initializeTransactionValues()
-  }, [trxId, loggedUserId, selectedMonth, selectedYear])
+  }, [trxId, loggedUserId])
 
   async function handleFormSubmit(values: z.infer<typeof transactionSchema>) {
     if (!loggedUserId) return
