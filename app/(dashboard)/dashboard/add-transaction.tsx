@@ -48,22 +48,27 @@ export default function AddTransaction({
   const [selectedMonth, setSelectedMonth] = useState<number | undefined>(isEditing ? undefined : currentMonth)
   const [selectedYear, setSelectedYear] = useState<number | undefined>(isEditing ? undefined : currentYear)
 
-  // Fetch existing names/notes when the component is mounted
+  // set loggedUserId
   useEffect(() => {
-    async function initializeData() {
+    async function fetchUserId() {
       const { data: session } = await authClient.getSession()
       const userId = session?.user?.id || ""
       setLoggedUserId(userId)
-
-      if (userId) {
-        const names = await fetchTransactionNames(userId)
-        const notes = await fetchTransactionNotes(userId)
-        setExistingNames(names)
-        setExistingNotes(notes)
-      }
     }
-    initializeData()
+    fetchUserId()
   }, [])
+
+  // Fetch existing names/notes for autocomplete
+  useEffect(() => {
+    async function getAutoCompleteData() {
+      if (!loggedUserId) return
+      const names = await fetchTransactionNames(loggedUserId)
+      const notes = await fetchTransactionNotes(loggedUserId)
+      setExistingNames(names)
+      setExistingNotes(notes)
+    }
+    getAutoCompleteData()
+  }, [loggedUserId])
 
   // Reset the buckets when the month or year changes
   useEffect(() => {
@@ -85,7 +90,6 @@ export default function AddTransaction({
 
       // Fetch transaction data
       if (!trxData) {
-        console.log("Fetching transaction data")
         const transaction = await fetchTransaction(loggedUserId, trxId)
         if (!transaction) return
 
