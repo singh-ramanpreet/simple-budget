@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 // import { ChartConfig, ChartContainer } from "@/components/ui/chart"
 import { authClient } from "@/lib/auth/client"
 import { fetchBuckets, Bucket } from "@/lib/db/buckets"
-import { percentage, buckets_total_amount } from "../dashboard/list-buckets"
+import { percentage, buckets_total_amount } from "../list-buckets"
 
 // Remove the static COLORS array and add this function
 function stringToColor(str: string) {
