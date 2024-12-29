@@ -10,6 +10,7 @@ import {
   fetchTransactionNames,
   fetchTransactionNotes,
   updateTransaction,
+  Transaction,
 } from "@/lib/db/transactions"
 import { formatISO } from "date-fns"
 import { useState, useEffect } from "react"
@@ -40,6 +41,7 @@ export default function AddTransaction({
   const [loggedUserId, setLoggedUserId] = useState(undefined as string | undefined)
   const [buckets, setBuckets] = useState<Bucket[]>([])
   const [trxId, setTrxId] = useState(transactionId)
+  const [trxData, setTrxData] = useState<Transaction>()
   const [defaultValues, setDefaultValues] = useState<TransactionFormValues>()
   const [existingNames, setExistingNames] = useState<string[]>([])
   const [existingNotes, setExistingNotes] = useState<string[]>([])
@@ -82,26 +84,34 @@ export default function AddTransaction({
       if (!loggedUserId || !trxId) return
 
       // Fetch transaction data
-      const transaction = await fetchTransaction(loggedUserId, trxId)
-      if (!transaction) return
+      if (!trxData) {
+        console.log("Fetching transaction data")
+        const transaction = await fetchTransaction(loggedUserId, trxId)
+        if (!transaction) return
 
-      // get date and set the month and year
-      const date = new Date(transaction.date)
-      await handleDateChange(date)
+        setTrxData(transaction)
+        // get date and set the month and year
+        const date = new Date(transaction.date)
+        await handleDateChange(date)
+      }
 
-      // buckets must be fetched first
+      // Return if buckets are not fetched yet
       if (buckets.length === 0) return
 
+      // Return if transaction data is not fetched
+      if (!trxData) return
+
+      // Set default values
       setDefaultValues({
-        date: date,
-        name: transaction.name,
-        amount: transaction.amount.toString(),
-        category: transaction.category ?? "",
-        notes: transaction.notes,
+        date: new Date(trxData.date),
+        name: trxData.name,
+        amount: trxData.amount.toString(),
+        category: trxData.category ?? "",
+        notes: trxData.notes,
       })
     }
     initializeTransactionValues()
-  }, [trxId, loggedUserId, buckets.length])
+  }, [trxId, loggedUserId, trxData, buckets.length])
 
   async function handleFormSubmit(values: z.infer<typeof transactionSchema>) {
     if (!loggedUserId) return

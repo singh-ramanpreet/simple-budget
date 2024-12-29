@@ -148,7 +148,7 @@ export default function TransactionForm({
               <div className="flex items-center justify-end space-x-2">
                 <FormLabel className="text-right">Amount</FormLabel>
                 <FormControl className="w-2/3">
-                  <Input type="number" placeholder="0" {...field} />
+                  <Input type="number" placeholder="0" step="0.01" {...field} />
                 </FormControl>
               </div>
               <FormMessage className="ml-[35%]" />
