@@ -16,12 +16,12 @@ import { authClient } from "@/lib/auth/client"
 import { Bucket, fetchBuckets } from "@/lib/db/buckets"
 import { format } from "date-fns"
 
-interface FilterTransactionProps {
+interface TransactionFilterProps {
   onSave?: (category: number, year: number | undefined, month: number | undefined) => void
   onReset?: () => void
 }
 
-export default function FilterTransaction({ onSave, onReset }: FilterTransactionProps) {
+export default function TransactionFilter({ onSave, onReset }: TransactionFilterProps) {
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [bucket, setBucket] = useState<Bucket[]>([])

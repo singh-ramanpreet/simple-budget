@@ -10,7 +10,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 import { useState } from "react"
-import AddTransaction from "./add-transaction"
+import TransactionEdit from "./transaction-edit"
 
 interface TransactionProps {
   transaction: Transaction
@@ -62,9 +62,9 @@ export default function TransactionItem({ transaction, OnEditTransaction }: Tran
           <DialogTitle className="text-center">{copied ? "New Transaction" : "Edit Transaction"}</DialogTitle>
           <DialogDescription></DialogDescription>
         </DialogHeader>
-        <AddTransaction
+        <TransactionEdit
           transactionId={transaction.id}
-          onAddTransaction={OnEditTransaction}
+          onTransactionEdit={OnEditTransaction}
           onCanceled={() => {
             setDialogOpen(false)
             setCopied(false)

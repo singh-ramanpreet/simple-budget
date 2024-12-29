@@ -3,8 +3,8 @@
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PlusCircle, ListOrdered, PaintBucket, Import, RotateCw } from "lucide-react"
-import ListTransactions from "./list-transactions"
-import AddTransaction from "./add-transaction"
+import TransactionsList from "@/components/transactions-list"
+import TransactionEdit from "@/components/transaction-edit"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog"
 import ListBuckets from "./list-buckets"
 import AddBucket from "./add-bucket"
-import FilterTransaction from "./filter-transaction"
+import TransactionFilter from "@/components/transaction-filter"
 import CopyBucket from "./copy-bucket"
 
 export default function Dashboard() {
@@ -81,8 +81,8 @@ export default function Dashboard() {
                 <DialogTitle className="text-center">New Transaction</DialogTitle>
                 <DialogDescription></DialogDescription>
               </DialogHeader>
-              <AddTransaction
-                onAddTransaction={[handleTransactionsRefresh, handleTransactionDialog]}
+              <TransactionEdit
+                onTransactionEdit={[handleTransactionsRefresh, handleTransactionDialog]}
                 onCanceled={handleTransactionDialog}
               />
             </DialogContent>
@@ -97,7 +97,7 @@ export default function Dashboard() {
               <span>Transactions</span>
             </div>
             <div className="flex items-center gap-2">
-              <FilterTransaction onSave={handleFilterTransaction} onReset={handleResetTransactionFilter} />
+              <TransactionFilter onSave={handleFilterTransaction} onReset={handleResetTransactionFilter} />
               <Button onClick={handleTransactionsRefresh} className="ml-2" variant="outline">
                 <RotateCw className="h-5 w-5" />
               </Button>
@@ -105,7 +105,7 @@ export default function Dashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <ListTransactions
+          <TransactionsList
             refresh={refreshTransactions}
             OnEditTransaction={[handleTransactionsRefresh]}
             month={transactionCategoryMonthFilter}

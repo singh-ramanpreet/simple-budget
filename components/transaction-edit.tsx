@@ -18,21 +18,21 @@ import { fetchBuckets, Bucket } from "@/lib/db/buckets"
 import { transactionSchema } from "./transaction-form"
 import TransactionForm, { TransactionFormValues } from "./transaction-form"
 
-interface AddTransactionProps {
-  onAddTransaction: (() => void)[]
+interface TransactionEditProps {
+  onTransactionEdit: (() => void)[]
   onCanceled: () => void
   onCopy?: () => void
   isEditing?: boolean
   transactionId?: number
 }
 
-export default function AddTransaction({
-  onAddTransaction,
+export default function TransactionEdit({
+  onTransactionEdit,
   onCanceled,
   onCopy,
   isEditing = false,
   transactionId = undefined,
-}: AddTransactionProps) {
+}: TransactionEditProps) {
   const currentDate = new Date()
   const currentMonth = currentDate.getMonth() + 1
   const currentYear = currentDate.getFullYear()
@@ -140,7 +140,7 @@ export default function AddTransaction({
       } else {
         await addTransaction(transactionData)
       }
-      onAddTransaction.forEach((cb) => cb())
+      onTransactionEdit.forEach((cb) => cb())
     } finally {
       setIsLoading(false)
     }
@@ -158,7 +158,7 @@ export default function AddTransaction({
     try {
       await deleteTransaction(loggedUserId, trxId)
       onCanceled()
-      onAddTransaction.forEach((cb) => cb())
+      onTransactionEdit.forEach((cb) => cb())
     } finally {
       setIsLoading(false)
       setTrxId(undefined)

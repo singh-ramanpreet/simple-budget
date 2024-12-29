@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { authClient } from "@/lib/auth/client"
 import { Transaction, fetchTransactions } from "@/lib/db/transactions"
-import TransactionItem from "./transaction"
+import TransactionItem from "./transaction-item"
 import {
   Pagination,
   PaginationContent,
@@ -15,7 +15,7 @@ import {
   PaginationNext,
 } from "@/components/ui/pagination"
 
-interface ListTransactionsProps {
+interface TransactionsListProps {
   refresh: boolean
   month?: number
   year?: number
@@ -23,13 +23,13 @@ interface ListTransactionsProps {
   OnEditTransaction: (() => void)[]
 }
 
-export default function ListTransactions({
+export default function TransactionsList({
   refresh,
   month,
   year,
   categoryId,
   OnEditTransaction,
-}: ListTransactionsProps) {
+}: TransactionsListProps) {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [currentDate, setCurrentDate] = useState(new Date())
