@@ -58,18 +58,6 @@ export default function AddTransaction({
     fetchUserId()
   }, [])
 
-  // Fetch existing names/notes for autocomplete
-  useEffect(() => {
-    async function getAutoCompleteData() {
-      if (!loggedUserId) return
-      const names = await fetchTransactionNames(loggedUserId)
-      const notes = await fetchTransactionNotes(loggedUserId)
-      setExistingNames(names)
-      setExistingNotes(notes)
-    }
-    getAutoCompleteData()
-  }, [loggedUserId])
-
   // Reset the buckets when the month or year changes
   useEffect(() => {
     async function fetch() {
@@ -89,7 +77,7 @@ export default function AddTransaction({
       if (!loggedUserId || !trxId) return
 
       // Fetch transaction data
-      if (!trxData) {
+      if (trxData?.id !== trxId) {
         const transaction = await fetchTransaction(loggedUserId, trxId)
         if (!transaction) return
 
@@ -116,6 +104,20 @@ export default function AddTransaction({
     }
     initializeTransactionValues()
   }, [trxId, loggedUserId, trxData, buckets.length])
+
+  // Fetch existing names/notes for autocomplete
+  useEffect(() => {
+    async function getAutoCompleteData() {
+      if (!loggedUserId) return
+      // fetch after buckets are fetched
+      if (buckets.length === 0) return
+      const names = await fetchTransactionNames(loggedUserId)
+      const notes = await fetchTransactionNotes(loggedUserId)
+      setExistingNames(names)
+      setExistingNotes(notes)
+    }
+    getAutoCompleteData()
+  }, [loggedUserId, buckets.length])
 
   async function handleFormSubmit(values: z.infer<typeof transactionSchema>) {
     if (!loggedUserId) return
