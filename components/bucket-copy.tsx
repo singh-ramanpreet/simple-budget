@@ -70,7 +70,7 @@ export const columns: ColumnDef<Bucket>[] = [
   },
 ]
 
-export default function CopyBucket({ onClose, onCopy }: { onClose?: () => void; onCopy?: () => void }) {
+export default function BucketCopy({ onClose, onCopy }: { onClose?: () => void; onCopy?: () => void }) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [rowSelection, setRowSelection] = useState({})

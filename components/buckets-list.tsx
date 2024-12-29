@@ -3,34 +3,19 @@
 import { useCallback, useEffect, useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { authClient } from "@/lib/auth/client"
-import { Bucket, fetchBuckets, fetchBucketTransactionsSum } from "@/lib/db/buckets"
-import BucketItem from "./bucket"
+import { BucketWithSum, fetchBuckets, fetchBucketTransactionsSum } from "@/lib/db/buckets"
+import { percentage, buckets_total_amount, buckets_total_transactions_sum } from "@/lib/utils"
+import BucketItem from "./bucket-item"
 import { Progress } from "@/components/ui/progress"
 
-interface ListBucketsProps {
+interface BucketsListProps {
   refresh: boolean
   month?: number
   year?: number
   OnEditBucket: (() => void)[]
 }
 
-export interface BucketWithSum extends Bucket {
-  transactions_sum: number | undefined
-}
-
-export function percentage(spent: number | undefined, total: number) {
-  return ((spent ?? 0) / total) * 100
-}
-
-export function buckets_total_amount(buckets: BucketWithSum[] | Bucket[]) {
-  return buckets.reduce((acc, b) => acc + b.amount, 0)
-}
-
-function buckets_total_transactions_sum(buckets: BucketWithSum[]) {
-  return buckets.reduce((acc, b) => acc + (b.transactions_sum ?? 0), 0)
-}
-
-export default function ListBuckets({ refresh, month, year, OnEditBucket }: ListBucketsProps) {
+export default function BucketsList({ refresh, month, year, OnEditBucket }: BucketsListProps) {
   const [buckets, setBuckets] = useState<BucketWithSum[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [currentDate, setCurrentDate] = useState(new Date())

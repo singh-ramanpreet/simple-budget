@@ -3,8 +3,6 @@
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PlusCircle, ListOrdered, PaintBucket, Import, RotateCw } from "lucide-react"
-import TransactionsList from "@/components/transactions-list"
-import TransactionEdit from "@/components/transaction-edit"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -14,10 +12,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import ListBuckets from "./list-buckets"
-import AddBucket from "./add-bucket"
+import TransactionsList from "@/components/transactions-list"
+import TransactionEdit from "@/components/transaction-edit"
 import TransactionFilter from "@/components/transaction-filter"
-import CopyBucket from "./copy-bucket"
+import BucketsList from "@/components/buckets-list"
+import BucketEdit from "@/components/bucket-edit"
+import BucketCopy from "@/components/bucket-copy"
 
 export default function Dashboard() {
   const [refreshTransactions, setRefreshTransactions] = useState(false)
@@ -127,7 +127,7 @@ export default function Dashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <ListBuckets refresh={refreshBuckets} OnEditBucket={[handleBucketsRefresh]} />
+          <BucketsList refresh={refreshBuckets} OnEditBucket={[handleBucketsRefresh]} />
         </CardContent>
       </Card>
       <Card className="w-full max-w-md">
@@ -155,7 +155,10 @@ export default function Dashboard() {
                       Create a new bucket to categorize your transactions.
                     </DialogDescription>
                   </DialogHeader>
-                  <AddBucket onAddBucket={[handleBucketsRefresh, handleBucketDialog]} onCanceled={handleBucketDialog} />
+                  <BucketEdit
+                    onBucketEdit={[handleBucketsRefresh, handleBucketDialog]}
+                    onCanceled={handleBucketDialog}
+                  />
                 </DialogContent>
               </Dialog>
             </div>
@@ -179,7 +182,7 @@ export default function Dashboard() {
                     <DialogTitle className="text-center">Copy Buckets</DialogTitle>
                     <DialogDescription className="text-center">Copy buckets from the previous month.</DialogDescription>
                   </DialogHeader>
-                  <CopyBucket onClose={handleCopyDialog} onCopy={handleBucketsRefresh} />
+                  <BucketCopy onClose={handleCopyDialog} onCopy={handleBucketsRefresh} />
                 </DialogContent>
               </Dialog>
             </div>

@@ -1,6 +1,5 @@
 "use client"
 
-import { BucketWithSum, percentage } from "./list-buckets"
 import {
   Dialog,
   DialogTrigger,
@@ -12,7 +11,9 @@ import {
 import { Progress } from "@/components/ui/progress"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
-import AddBucket from "./add-bucket"
+import { percentage } from "@/lib/utils"
+import { BucketWithSum } from "@/lib/db/buckets"
+import BucketEdit from "./bucket-edit"
 
 interface BucketProps {
   bucket: BucketWithSum
@@ -61,9 +62,9 @@ export default function BucketItem({ bucket, OnEditBucket }: BucketProps) {
           <DialogTitle className="text-center">Edit Budget Bucket</DialogTitle>
           <DialogDescription></DialogDescription>
         </DialogHeader>
-        <AddBucket
+        <BucketEdit
           bucketId={bucket.id}
-          onAddBucket={OnEditBucket}
+          onBucketEdit={OnEditBucket}
           onCanceled={() => setDialogOpen(false)}
           deleteButton={true}
         />

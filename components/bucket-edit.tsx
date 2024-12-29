@@ -5,14 +5,14 @@ import { authClient } from "@/lib/auth/client"
 import { addBucket, deleteBucket, updateBucket, fetchBucket } from "@/lib/db/buckets"
 import BucketForm, { BucketFormValues } from "./bucket-form"
 
-interface AddBucketProps {
+interface BucketEditProps {
   bucketId?: number
-  onAddBucket: (() => void)[]
+  onBucketEdit: (() => void)[]
   onCanceled: () => void
   deleteButton?: boolean
 }
 
-export default function AddBucket({ bucketId, onAddBucket, onCanceled, deleteButton }: AddBucketProps) {
+export default function BucketEdit({ bucketId, onBucketEdit, onCanceled, deleteButton }: BucketEditProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [loggedUserId, setLoggedUserId] = useState("")
   const [defaultValues, setDefaultValues] = useState<BucketFormValues>()
@@ -55,7 +55,7 @@ export default function AddBucket({ bucketId, onAddBucket, onCanceled, deleteBut
         await addBucket(bucketData)
       }
 
-      onAddBucket.forEach((callback) => callback())
+      onBucketEdit.forEach((callback) => callback())
       onCanceled()
     } finally {
       setIsLoading(false)
@@ -67,7 +67,7 @@ export default function AddBucket({ bucketId, onAddBucket, onCanceled, deleteBut
     setIsLoading(true)
     try {
       await deleteBucket(loggedUserId, bucketId)
-      onAddBucket.forEach((callback) => callback())
+      onBucketEdit.forEach((callback) => callback())
       onCanceled()
     } finally {
       setIsLoading(false)
