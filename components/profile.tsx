@@ -1,23 +1,13 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { authClient } from "@/lib/auth/client"
+import { headers } from "next/headers"
+import { auth } from "@/lib/auth"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { redirect } from "next/navigation"
+import signOut from "@/components/sign-out"
 
-export default function Profile() {
-  const [email, setEmail] = useState("")
-  const [name, setName] = useState("")
-
-  async function fetchSession() {
-    const { data } = await authClient.getSession()
-    setEmail(data?.user?.email || "")
-    setName(data?.user?.name || "")
-  }
-  useEffect(() => {
-    fetchSession()
-  }, [])
+export default async function Profile() {
+  const session = await auth.api.getSession({ headers: await headers(), query: { disableCookieCache: false } })
+  const name = session?.user?.name || ""
+  const email = session?.user?.email || ""
 
   return (
     <>
@@ -28,19 +18,7 @@ export default function Profile() {
         <Label>Email: {email}</Label>
       </div>
       <div>
-        <Button
-          variant="destructive"
-          onClick={() =>
-            authClient.signOut({
-              fetchOptions: {
-                onSuccess: () => {
-                  redirect("/sign-in")
-                },
-              },
-            })
-          }
-          className="w-full"
-        >
+        <Button variant="destructive" className="w-full" type="button" onClick={signOut}>
           Logout
         </Button>
       </div>

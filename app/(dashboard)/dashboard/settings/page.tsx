@@ -1,5 +1,3 @@
-"use client"
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import Profile from "@/components/profile"
 import ChangeName from "@/components/change-name"
