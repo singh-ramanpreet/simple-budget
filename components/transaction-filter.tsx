@@ -11,60 +11,46 @@ import {
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select"
 import { FilterX, Filter } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useEffect, useState } from "react"
-import { authClient } from "@/lib/auth/client"
-import { Bucket, fetchBuckets } from "@/lib/db/buckets"
+import { useState } from "react"
+import { Bucket } from "@/lib/db/buckets"
 import { format } from "date-fns"
+import { useSearchParams, usePathname, useRouter } from "next/navigation"
 
-interface TransactionFilterProps {
-  onSave?: (category: number, year: number | undefined, month: number | undefined) => void
-  onReset?: () => void
-}
+export default function TransactionFilter({ buckets }: { buckets: Bucket[] }) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
 
-export default function TransactionFilter({ onSave, onReset }: TransactionFilterProps) {
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [bucket, setBucket] = useState<Bucket[]>([])
   const [selected, setSelected] = useState<number | undefined>(undefined)
+
+  const sortedBuckets = buckets.sort((a, b) => {
+    if (a.year === b.year) {
+      return b.month - a.month
+    }
+    return b.year - a.year
+  })
 
   const handleFilterDialog = () => {
     setIsFilterDialogOpen(!isFilterDialogOpen)
-    if (!isFilterDialogOpen) {
-      setLoading(true)
-    }
   }
 
   const handleReset = () => {
+    const newParams = new URLSearchParams(searchParams)
+    newParams.delete("categoryId")
+    router.push(`${pathname}?${newParams.toString()}`)
     handleFilterDialog()
     setSelected(undefined)
-    onReset?.()
   }
 
   const handleSaved = () => {
+    const newParams = new URLSearchParams(searchParams)
+    newParams.set("categoryId", selected?.toString() || "")
+    newParams.set("month", sortedBuckets.find((b) => b.id === selected)?.month.toString() || "")
+    newParams.set("year", sortedBuckets.find((b) => b.id === selected)?.year.toString() || "")
+    router.push(`${pathname}?${newParams.toString()}`)
     handleFilterDialog()
-    if (selected)
-      onSave?.(selected, bucket.find((b) => b.id === selected)?.year, bucket.find((b) => b.id === selected)?.month)
   }
-
-  useEffect(() => {
-    async function initialize() {
-      if (loading) {
-        const { data: session } = await authClient.getSession()
-        const userId = session?.user?.id || ""
-        const result = await fetchBuckets(userId)
-        // sort by year and month descending
-        result.sort((a, b) => {
-          if (a.year === b.year) {
-            return b.month - a.month
-          }
-          return b.year - a.year
-        })
-        setBucket(result)
-      }
-      setLoading(false)
-    }
-    initialize()
-  }, [loading])
 
   return (
     <Dialog open={isFilterDialogOpen} onOpenChange={handleFilterDialog}>
@@ -83,12 +69,14 @@ export default function TransactionFilter({ onSave, onReset }: TransactionFilter
             <SelectValue placeholder="Select a category" />
           </SelectTrigger>
           <SelectContent className="max-h-60 overflow-y-auto">
-            {bucket.map((b) => (
+            {sortedBuckets.map((b) => (
               <SelectItem key={b.id} value={b.id.toString()}>
-                <div className="text-primary">{b.category}</div>
-                <span className="text-muted-foreground">
-                  {format(new Date(b.year + "-" + b.month + "-15"), "MMMM yyyy")}
-                </span>
+                <div className="flex items-center justify-between space-x-4">
+                  <div className="flex w-32 text-primary">{b.category}</div>
+                  <div className="flex justify-end text-muted-foreground">
+                    {format(new Date(b.year + "-" + b.month + "-15"), "MMMM yyyy")}
+                  </div>
+                </div>
               </SelectItem>
             ))}
           </SelectContent>

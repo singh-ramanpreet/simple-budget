@@ -5,6 +5,7 @@ import { db } from "./drizzle"
 import { budget_transactions, budget_buckets } from "./schema"
 
 export type Transaction = typeof budget_transactions.$inferSelect & { category: string | null }
+export type TransactionInsert = typeof budget_transactions.$inferInsert
 
 const transaction_columns = {
   id: budget_transactions.id,
