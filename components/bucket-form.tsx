@@ -2,47 +2,55 @@
 
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Loader2, Trash2 } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useActionState } from "react"
+import { BucketFormSchema, TBucketFormSchema } from "@/lib/schema"
+import { handleSaveBucket, handleDeleteBucket } from "@/lib/actions"
+import { useRouter, useSearchParams } from "next/navigation"
+import { DASHBOARD_PATH } from "@/lib/constants"
 
-const bucketFormSchema = z.object({
-  category: z.string().min(1, "Category is required"),
-  amount: z.number().min(0, "Budget amount is required"),
-  month: z.number().int().min(1, "Month is required"),
-  year: z.number().int().min(4, "Year is required"),
-})
-
-export type BucketFormValues = z.infer<typeof bucketFormSchema>
-
-interface BucketFormProps {
-  defaultValues?: BucketFormValues
-  onSubmit: (data: BucketFormValues) => Promise<void>
-  onDelete?: () => Promise<void>
-  onCancel: () => void
-  isLoading: boolean
+type BucketFormProps = {
+  defaultValues?: TBucketFormSchema
 }
 
-export default function BucketForm({ defaultValues, onSubmit, onDelete, onCancel, isLoading }: BucketFormProps) {
-  const [error, setError] = useState<string>("")
-  const form = useForm<BucketFormValues>({
-    resolver: zodResolver(bucketFormSchema),
-    defaultValues: defaultValues ?? {
-      category: "",
-      amount: 0,
-      month: new Date().getMonth() + 1,
-      year: new Date().getFullYear(),
-    },
+export default function BucketForm({ defaultValues }: BucketFormProps) {
+  // navigation
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const RETURN_PATH = `${DASHBOARD_PATH}?${searchParams}`
+
+  const [saveState, saveFormAction, isSavePending] = useActionState(handleSaveBucket, { message: "", success: false })
+  const [deleteState, deleteFormAction, isDeletePending] = useActionState(handleDeleteBucket, {
+    message: "",
+    success: false,
   })
 
-  // Reset form when defaultValues change
+  const isPending = isSavePending || isDeletePending
+
+  const [deleteButton] = useState<boolean>(defaultValues?.category_id ? true : false)
+
+  const form = useForm<TBucketFormSchema>({
+    resolver: zodResolver(BucketFormSchema),
+    defaultValues,
+  })
+
   useEffect(() => {
-    form.reset(defaultValues)
-  }, [defaultValues, form])
+    if (saveState.success) {
+      router.replace(RETURN_PATH)
+      console.log(RETURN_PATH)
+    }
+  }, [saveState.success, router, RETURN_PATH])
+
+  useEffect(() => {
+    if (deleteState.success) {
+      router.replace(RETURN_PATH)
+    }
+  }, [deleteState.success, router, RETURN_PATH])
 
   const listMonths = [
     { id: 1, name: "January" },
@@ -56,22 +64,25 @@ export default function BucketForm({ defaultValues, onSubmit, onDelete, onCancel
     { id: 9, name: "September" },
     { id: 10, name: "October" },
     { id: 11, name: "November" },
-    { id: 12, name: "December   " },
+    { id: 12, name: "December" },
   ]
 
-  async function handleFormSubmit(data: BucketFormValues) {
-    setError("")
-    try {
-      await onSubmit(data)
-    } catch (error) {
-      setError("Failed to save bucket. Please try again.")
-      console.error(error)
-    }
+  async function handleCancel() {
+    router.replace(RETURN_PATH)
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
+      <form className="space-y-4" action={saveFormAction}>
+        <div className="item-center mb-4 flex justify-center rounded-xl bg-primary-foreground p-2 text-lg font-medium">
+          {defaultValues?.category_id ? "Edit Budget Bucket" : "Add Budget Bucket"}
+        </div>
+        {/* category_id */}
+        <FormField
+          control={form.control}
+          name="category_id"
+          render={({ field }) => <input type="hidden" {...field} />}
+        />
         {/* category */}
         <FormField
           control={form.control}
@@ -121,15 +132,10 @@ export default function BucketForm({ defaultValues, onSubmit, onDelete, onCancel
               name="month"
               render={({ field }) => (
                 <FormItem>
+                  <input type="hidden" {...field} />
                   <div className="flex items-center justify-end space-x-2">
                     <FormLabel>Month</FormLabel>
-                    <Select
-                      onValueChange={(value) => {
-                        form.setValue("month", listMonths.find((month) => month.name === value)?.id || 0)
-                      }}
-                      value={listMonths.find((month) => month.id === field.value)?.name || ""}
-                      name={field.name}
-                    >
+                    <Select value={field.value.toString()} onValueChange={(value) => field.onChange(parseInt(value))}>
                       <FormControl className="w-2/3">
                         <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select Month" />
@@ -137,7 +143,7 @@ export default function BucketForm({ defaultValues, onSubmit, onDelete, onCancel
                       </FormControl>
                       <SelectContent>
                         {listMonths.map((month) => (
-                          <SelectItem key={month.id} value={month.name}>
+                          <SelectItem key={month.id} value={month.id.toString()}>
                             {month.name}
                           </SelectItem>
                         ))}
@@ -174,27 +180,33 @@ export default function BucketForm({ defaultValues, onSubmit, onDelete, onCancel
           </div>
         </div>
 
-        {error && <div className="mt-2 text-sm text-red-500">{error}</div>}
+        {saveState.message && <div className="mt-2 text-sm text-red-500">{saveState.message}</div>}
+        {deleteState.message && <div className="mt-2 text-sm text-red-500">{deleteState.message}</div>}
+
+        <Button type="submit" disabled={isPending} className="hidden">
+          {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          Save
+        </Button>
 
         <div className="flex justify-end space-x-4 pt-2">
-          {onDelete && (
+          {deleteButton && (
             <div className="flex w-1/3 justify-start">
               <Button
-                type="button"
+                type="submit"
                 variant="destructive"
-                onClick={onDelete}
-                disabled={isLoading}
+                formAction={deleteFormAction}
+                disabled={isPending}
                 className="flex-shrink-0"
               >
                 <Trash2 className="h-5 w-5" />
               </Button>
             </div>
           )}
-          <Button type="submit" disabled={isLoading} className="w-1/3">
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          <Button type="submit" disabled={isPending} className="w-1/3">
+            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Save
           </Button>
-          <Button type="button" variant="secondary" onClick={onCancel} className="w-1/3" disabled={isLoading}>
+          <Button type="button" variant="secondary" onClick={handleCancel} className="w-1/3" disabled={isPending}>
             Cancel
           </Button>
         </div>

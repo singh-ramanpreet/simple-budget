@@ -124,7 +124,7 @@ export default async function TransactionsList({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <Button asChild variant="link" className="rounded-full hover:bg-muted">
-          <Link href={navigateMonth(-1)}>
+          <Link href={navigateMonth(-1)} scroll={false}>
             <ChevronLeft className="text-muted-foreground" />
           </Link>
         </Button>
@@ -134,7 +134,7 @@ export default async function TransactionsList({
         </h2>
 
         <Button asChild variant="link" className="rounded-full hover:bg-muted">
-          <Link href={navigateMonth(1)}>
+          <Link href={navigateMonth(1)} scroll={false}>
             <ChevronRight className="text-muted-foreground" />
           </Link>
         </Button>

@@ -1,88 +1,58 @@
-"use client"
-
-import { useCallback, useEffect, useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { authClient } from "@/lib/auth/client"
+import { getUserId } from "@/lib/actions"
 import { BucketWithSum, fetchBuckets, fetchBucketTransactionsSum } from "@/lib/db/buckets"
 import { percentage, buckets_total_amount, buckets_total_transactions_sum } from "@/lib/utils"
 import BucketItem from "./bucket-item"
 import { Progress } from "@/components/ui/progress"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
-interface BucketsListProps {
-  refresh: boolean
+type BucketsListProps = {
   month?: number
   year?: number
-  OnEditBucket: (() => void)[]
 }
 
-export default function BucketsList({ refresh, month, year, OnEditBucket }: BucketsListProps) {
-  const [buckets, setBuckets] = useState<BucketWithSum[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [currentDate, setCurrentDate] = useState(new Date())
-  const [filterMonth, setFilterMonth] = useState<number | undefined>(month)
-  const [filterYear, setFilterYear] = useState<number | undefined>(year)
-
-  const refreshBuckets = useCallback(async () => {
-    setIsLoading(true)
-    try {
-      const { data: session } = await authClient.getSession()
-      const userId = session?.user?.id || ""
-      if (!userId) {
-        return
-      }
-      const result = await fetchBuckets(userId, filterMonth, filterYear)
-      const result2 = await fetchBucketTransactionsSum(userId, filterMonth, filterYear)
-      setBuckets(
-        result.map((bucket) => {
-          const data = result2.find((b) => b.id === bucket.id)
-          return {
-            ...bucket,
-            transactions_sum: data?.sum,
-          }
-        })
-      )
-    } finally {
-      setIsLoading(false)
+export default async function BucketsList({ month, year }: BucketsListProps) {
+  const loggedUserId = await getUserId()
+  const buckets = await fetchBuckets(loggedUserId!, month, year)
+  const bucketsSum = await fetchBucketTransactionsSum(loggedUserId!, month, year)
+  const bucketsWithSum: BucketWithSum[] = buckets.map((bucket) => {
+    const sum = bucketsSum.find((b) => b.id === bucket.id)?.sum
+    return {
+      ...bucket,
+      transactions_sum: sum,
     }
-  }, [filterMonth, filterYear])
+  })
 
-  useEffect(() => {
-    refreshBuckets()
-  }, [refresh, refreshBuckets])
-
+  // navigate month
   const navigateMonth = (delta: number) => {
-    setCurrentDate((prev) => {
-      const newDate = new Date(prev)
-      newDate.setMonth(newDate.getMonth() + delta)
-      setFilterMonth(newDate.getMonth() + 1)
-      setFilterYear(newDate.getFullYear())
-      return newDate
-    })
-  }
-
-  if (!filterMonth || !filterYear) {
-    navigateMonth(0) // Set the filter to the current month
-    currentDate.setDate(15) // Set the date to the middle of the month
-  }
-
-  if (isLoading) {
-    return <div>Loading buckets...</div>
+    let href = `?`
+    const newDate = new Date(year!, month! - 1 + delta, 15)
+    const newMonth = newDate.getMonth() + 1
+    const newYear = newDate.getFullYear()
+    href += `month=${newMonth}&year=${newYear}`
+    href += `&page=${1}`
+    return href
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <button onClick={() => navigateMonth(-1)} className="rounded-full p-2 hover:bg-muted">
-          <ChevronLeft className="h-5 w-5 text-muted-foreground" />
-        </button>
+        <Button asChild variant="link" className="rounded-full hover:bg-muted">
+          <Link href={navigateMonth(-1)} scroll={false}>
+            <ChevronLeft className="text-muted-foreground" />
+          </Link>
+        </Button>
 
         <h2 className="text-lg font-medium">
-          {currentDate.toLocaleString("default", { month: "long", year: "numeric" })}
+          {new Date(year!, month! - 1, 15).toLocaleString("default", { month: "long", year: "numeric" })}
         </h2>
 
-        <button onClick={() => navigateMonth(1)} className="rounded-full p-2 hover:bg-muted">
-          <ChevronRight className="h-5 w-5 text-muted-foreground" />
-        </button>
+        <Button asChild variant="link" className="rounded-full hover:bg-muted">
+          <Link href={navigateMonth(1)} scroll={false}>
+            <ChevronRight className="text-muted-foreground" />
+          </Link>
+        </Button>
       </div>
 
       <ul>
@@ -93,26 +63,30 @@ export default function BucketsList({ refresh, month, year, OnEditBucket }: Buck
             </div>
             <div className="h-full flex-1">
               <Progress
-                value={percentage(buckets_total_transactions_sum(buckets), buckets_total_amount(buckets))}
+                value={percentage(buckets_total_transactions_sum(bucketsWithSum), buckets_total_amount(bucketsWithSum))}
                 max={1}
                 className="h-4"
               />
               <div className="mt-1 flex justify-between text-sm text-muted-foreground">
                 <span>
-                  {percentage(buckets_total_transactions_sum(buckets), buckets_total_amount(buckets)).toFixed(1)}%
+                  {percentage(
+                    buckets_total_transactions_sum(bucketsWithSum),
+                    buckets_total_amount(bucketsWithSum)
+                  ).toFixed(1)}
+                  %
                 </span>
-                <span>${buckets_total_amount(buckets).toFixed(1)}</span>
+                <span>${buckets_total_amount(bucketsWithSum).toFixed(1)}</span>
               </div>
             </div>
             <div className="h-full w-20 text-right align-top">
               <span className="text-muted-foreground">
-                ${Math.abs(buckets_total_transactions_sum(buckets)).toFixed(2)}
+                ${Math.abs(buckets_total_transactions_sum(bucketsWithSum)).toFixed(2)}
               </span>
             </div>
           </div>
         </li>
-        {buckets.map((bucket) => (
-          <BucketItem key={bucket.id} bucket={bucket} OnEditBucket={OnEditBucket} />
+        {bucketsWithSum.map((bucket) => (
+          <BucketItem key={bucket.id} bucket={bucket} />
         ))}
       </ul>
     </div>

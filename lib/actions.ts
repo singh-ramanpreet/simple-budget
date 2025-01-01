@@ -1,7 +1,7 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { TransactionSchema } from "./schema"
+import { BucketFormSchema, TransactionSchema } from "./schema"
 import {
   addTransaction,
   TransactionInsert,
@@ -13,6 +13,7 @@ import {
 import { headers } from "next/headers"
 import { auth } from "@/lib/auth"
 import { DASHBOARD_PATH } from "@/lib/constants"
+import { addBucket, BucketInsert, deleteBucket, updateBucket } from "./db/buckets"
 
 type SaveTransactionState = {
   message: string
@@ -48,7 +49,6 @@ export async function parseSearchParams(query: { [key: string]: string | undefin
 }
 
 export async function handleSaveTransaction(prevState: SaveTransactionState, formData: FormData) {
-  "use server"
   const data = Object.fromEntries(formData.entries())
   const dt = new Date(data.date.toString())
   const parse = TransactionSchema.safeParse({
@@ -102,7 +102,6 @@ type DeleteTransactionState = {
 }
 
 export async function handleDeleteTransaction(prevState: DeleteTransactionState, formData: FormData) {
-  "use server"
   const data = Object.fromEntries(formData.entries())
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -112,6 +111,70 @@ export async function handleDeleteTransaction(prevState: DeleteTransactionState,
 
   try {
     await deleteTransaction(loggedUserId!, parseInt(data.transactionId.toString()))
+    revalidatePath(DASHBOARD_PATH, "page")
+    return { message: "Deleted", success: true }
+  } catch {
+    return { message: "Unable to delete", success: false }
+  }
+}
+
+type SaveBucketState = {
+  message: string
+  success: boolean
+}
+
+export async function handleSaveBucket(prevState: SaveBucketState, formData: FormData) {
+  const data = Object.fromEntries(formData.entries())
+  const loggedUserId = await getUserId()
+  const parse = BucketFormSchema.safeParse({
+    month: parseInt(data.month.toString()),
+    year: parseInt(data.year.toString()),
+    amount: parseFloat(parseFloat(data.amount.toString()).toFixed(2)),
+    category: data.category.toString(),
+    category_id: data.category_id.toString(),
+  })
+  if (!parse.success) {
+    console.log(parse.error)
+    return { message: "Validation Failed", success: false }
+  }
+
+  const parsedData = parse.data
+  console.log(parsedData)
+  const bucket: BucketInsert = {
+    month: parsedData.month,
+    year: parsedData.year,
+    amount: parsedData.amount,
+    category: parsedData.category,
+    userId: loggedUserId!,
+    ...(parsedData.category_id ? { id: parseInt(parsedData.category_id) } : {}),
+  }
+
+  // add transaction
+  try {
+    const bucketId = parseInt(parsedData.category_id as string)
+    if (isNaN(bucketId)) {
+      await addBucket(bucket)
+    } else {
+      await updateBucket(loggedUserId!, bucketId, bucket)
+    }
+    revalidatePath(DASHBOARD_PATH, "page")
+    return { message: "Saved", success: true }
+  } catch {
+    return { message: "Unable to save", success: false }
+  }
+}
+
+type DeleteBucketState = {
+  message: string
+  success: boolean
+}
+
+export async function handleDeleteBucket(prevState: DeleteBucketState, formData: FormData) {
+  const data = Object.fromEntries(formData.entries())
+  const loggedUserId = await getUserId()
+
+  try {
+    await deleteBucket(loggedUserId!, parseInt(data.category_id.toString()))
     revalidatePath(DASHBOARD_PATH, "page")
     return { message: "Deleted", success: true }
   } catch {
