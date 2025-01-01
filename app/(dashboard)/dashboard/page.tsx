@@ -33,7 +33,7 @@ export default async function Dashboard({
       <Card className="w-full max-w-md">
         <CardContent className="flex flex-col items-center space-y-4 p-4">
           <Button asChild>
-            <Link href={`${DASHBOARD_PATH}/new`}>
+            <Link href={`${DASHBOARD_PATH}/t/new`}>
               <PlusCircle className="h-5 w-5 opacity-50" />
               Add Transaction
             </Link>

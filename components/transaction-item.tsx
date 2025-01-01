@@ -12,7 +12,7 @@ export default function TransactionItem({ transaction }: TransactionItemProps) {
   const day = date.getDate()
 
   return (
-    <Link href={`${DASHBOARD_PATH}/${transaction.id}?month=${date.getMonth() + 1}&year=${date.getFullYear()}`}>
+    <Link href={`${DASHBOARD_PATH}/t/${transaction.id}?month=${date.getMonth() + 1}&year=${date.getFullYear()}`}>
       <li className="group flex cursor-pointer items-center justify-between rounded-lg p-2 transition-colors hover:bg-muted">
         <div className="flex min-w-0 flex-1 items-center gap-2">
           <div className="flex h-12 w-12 flex-shrink-0 flex-col items-center justify-center rounded-lg bg-secondary text-secondary-foreground">
