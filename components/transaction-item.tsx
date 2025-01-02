@@ -10,7 +10,9 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 import { useState } from "react"
-import TransactionEdit from "./transaction-edit"
+import dynamic from "next/dynamic"
+
+const TransactionEdit = dynamic(() => import("./transaction-edit"))
 
 interface TransactionProps {
   transaction: Transaction

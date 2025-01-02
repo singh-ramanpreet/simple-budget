@@ -13,7 +13,9 @@ import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { percentage } from "@/lib/utils"
 import { BucketWithSum } from "@/lib/db/buckets"
-import BucketEdit from "./bucket-edit"
+import dynamic from "next/dynamic"
+
+const BucketEdit = dynamic(() => import("./bucket-edit"))
 
 interface BucketProps {
   bucket: BucketWithSum

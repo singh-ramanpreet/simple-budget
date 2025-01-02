@@ -16,7 +16,10 @@ import { formatISO } from "date-fns"
 import { useState, useEffect } from "react"
 import { fetchBuckets, Bucket } from "@/lib/db/buckets"
 import { transactionSchema } from "./transaction-form"
-import TransactionForm, { TransactionFormValues } from "./transaction-form"
+import { TransactionFormValues } from "./transaction-form"
+import dynamic from "next/dynamic"
+
+const TransactionForm = dynamic(() => import("./transaction-form"))
 
 interface TransactionEditProps {
   onTransactionEdit: (() => void)[]

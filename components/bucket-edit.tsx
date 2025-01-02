@@ -3,7 +3,10 @@
 import { useState, useEffect } from "react"
 import { authClient } from "@/lib/auth/client"
 import { addBucket, deleteBucket, updateBucket, fetchBucket } from "@/lib/db/buckets"
-import BucketForm, { BucketFormValues } from "./bucket-form"
+import { BucketFormValues } from "./bucket-form"
+import dynamic from "next/dynamic"
+
+const BucketForm = dynamic(() => import("./bucket-form"))
 
 interface BucketEditProps {
   bucketId?: number
