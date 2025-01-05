@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import BucketEditImpl from "@/components/bucket-edit-impl"
 
-export default async function Dashboard({
+export default async function BucketPage({
   params,
   searchParams,
 }: {

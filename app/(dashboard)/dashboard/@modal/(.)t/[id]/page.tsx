@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog"
 import TransactionEditImpl from "@/components/transaction-edit-impl"
 
-export default async function Dashboard({
+export default async function TransactionPage({
   params,
   searchParams,
 }: {

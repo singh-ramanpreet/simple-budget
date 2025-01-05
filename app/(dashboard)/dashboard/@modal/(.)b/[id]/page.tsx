@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog"
 import BucketEditImpl from "@/components/bucket-edit-impl"
 
-export default async function Dashboard({
+export default async function BucketPage({
   params,
   searchParams,
 }: {

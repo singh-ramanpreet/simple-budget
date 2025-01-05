@@ -1,7 +1,7 @@
 import TransactionEditImpl from "@/components/transaction-edit-impl"
 import { Card, CardContent } from "@/components/ui/card"
 
-export default async function Dashboard({
+export default async function TransactionPage({
   params,
   searchParams,
 }: {
