@@ -23,7 +23,7 @@ type SaveTransactionState = {
 export async function getUserId() {
   const session = await auth.api.getSession({
     headers: await headers(),
-    query: { disableCookieCache: false },
+    query: { disableCookieCache: true },
   })
   return session?.session?.userId
 }
@@ -86,7 +86,6 @@ export async function handleSaveTransaction(prevState: SaveTransactionState, for
     if (isNaN(trxId)) {
       await addTransaction(trx)
     } else {
-      console.log("updateTransaction")
       await updateTransaction(loggedUserId!, trxId, trx)
     }
     revalidatePath(DASHBOARD_PATH, "page")
@@ -139,7 +138,6 @@ export async function handleSaveBucket(prevState: SaveBucketState, formData: For
   }
 
   const parsedData = parse.data
-  console.log(parsedData)
   const bucket: BucketInsert = {
     month: parsedData.month,
     year: parsedData.year,

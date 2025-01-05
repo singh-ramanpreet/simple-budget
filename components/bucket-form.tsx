@@ -10,8 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useEffect, useState, useActionState } from "react"
 import { BucketFormSchema, TBucketFormSchema } from "@/lib/schema"
 import { handleSaveBucket, handleDeleteBucket } from "@/lib/actions"
-import { useRouter, useSearchParams } from "next/navigation"
-import { DASHBOARD_PATH } from "@/lib/constants"
+import { useRouter } from "next/navigation"
 
 type BucketFormProps = {
   defaultValues?: TBucketFormSchema
@@ -20,9 +19,6 @@ type BucketFormProps = {
 export default function BucketForm({ defaultValues }: BucketFormProps) {
   // navigation
   const router = useRouter()
-  const searchParams = useSearchParams()
-
-  const RETURN_PATH = `${DASHBOARD_PATH}?${searchParams}`
 
   const [saveState, saveFormAction, isSavePending] = useActionState(handleSaveBucket, { message: "", success: false })
   const [deleteState, deleteFormAction, isDeletePending] = useActionState(handleDeleteBucket, {
@@ -41,16 +37,15 @@ export default function BucketForm({ defaultValues }: BucketFormProps) {
 
   useEffect(() => {
     if (saveState.success) {
-      router.replace(RETURN_PATH)
-      console.log(RETURN_PATH)
+      router.back()
     }
-  }, [saveState.success, router, RETURN_PATH])
+  }, [saveState.success, router])
 
   useEffect(() => {
     if (deleteState.success) {
-      router.replace(RETURN_PATH)
+      router.back()
     }
-  }, [deleteState.success, router, RETURN_PATH])
+  }, [deleteState.success, router])
 
   const listMonths = [
     { id: 1, name: "January" },
@@ -68,7 +63,7 @@ export default function BucketForm({ defaultValues }: BucketFormProps) {
   ]
 
   async function handleCancel() {
-    router.replace(RETURN_PATH)
+    router.back()
   }
 
   return (
@@ -83,47 +78,6 @@ export default function BucketForm({ defaultValues }: BucketFormProps) {
           name="category_id"
           render={({ field }) => <input type="hidden" {...field} />}
         />
-        {/* category */}
-        <FormField
-          control={form.control}
-          name="category"
-          render={({ field }) => (
-            <FormItem>
-              <div className="flex items-center justify-end space-x-2">
-                <FormLabel className="text-right">Category</FormLabel>
-                <FormControl className="w-2/3">
-                  <Input placeholder="Enter category" {...field} />
-                </FormControl>
-              </div>
-              <FormMessage className="ml-[35%]" />
-            </FormItem>
-          )}
-        />
-        {/* Amount */}
-        <FormField
-          control={form.control}
-          name="amount"
-          render={({ field }) => (
-            <FormItem>
-              <div className="flex items-center justify-end space-x-2">
-                <FormLabel className="text-right">Budget Amount</FormLabel>
-                <FormControl className="w-2/3">
-                  <Input
-                    type="number"
-                    placeholder="0.00"
-                    {...field}
-                    onChange={(e) => {
-                      //remove leading zeros
-                      e.target.value = e.target.value.replace(/^0+(?=\d)/, "")
-                      field.onChange(+e.target.value)
-                    }}
-                  />
-                </FormControl>
-              </div>
-              <FormMessage className="ml-[35%]" />
-            </FormItem>
-          )}
-        />
         {/* month */}
         <div className="flex justify-end gap-4">
           <div className="w-2/5">
@@ -132,8 +86,8 @@ export default function BucketForm({ defaultValues }: BucketFormProps) {
               name="month"
               render={({ field }) => (
                 <FormItem>
-                  <input type="hidden" {...field} />
                   <div className="flex items-center justify-end space-x-2">
+                    <input type="hidden" {...field} />
                     <FormLabel>Month</FormLabel>
                     <Select value={field.value.toString()} onValueChange={(value) => field.onChange(parseInt(value))}>
                       <FormControl className="w-2/3">
@@ -179,6 +133,47 @@ export default function BucketForm({ defaultValues }: BucketFormProps) {
             />
           </div>
         </div>
+        {/* category */}
+        <FormField
+          control={form.control}
+          name="category"
+          render={({ field }) => (
+            <FormItem>
+              <div className="flex items-center justify-end space-x-2">
+                <FormLabel className="text-right">Category</FormLabel>
+                <FormControl className="w-2/3">
+                  <Input placeholder="Enter category" {...field} />
+                </FormControl>
+              </div>
+              <FormMessage className="ml-[35%]" />
+            </FormItem>
+          )}
+        />
+        {/* Amount */}
+        <FormField
+          control={form.control}
+          name="amount"
+          render={({ field }) => (
+            <FormItem>
+              <div className="flex items-center justify-end space-x-2">
+                <FormLabel className="text-right">Budget Amount</FormLabel>
+                <FormControl className="w-2/3">
+                  <Input
+                    type="number"
+                    placeholder="0.00"
+                    {...field}
+                    onChange={(e) => {
+                      //remove leading zeros
+                      e.target.value = e.target.value.replace(/^0+(?=\d)/, "")
+                      field.onChange(+e.target.value)
+                    }}
+                  />
+                </FormControl>
+              </div>
+              <FormMessage className="ml-[35%]" />
+            </FormItem>
+          )}
+        />
 
         {saveState.message && <div className="mt-2 text-sm text-red-500">{saveState.message}</div>}
         {deleteState.message && <div className="mt-2 text-sm text-red-500">{deleteState.message}</div>}

@@ -14,7 +14,6 @@ import { format, formatISO } from "date-fns"
 import { useState, useEffect, useActionState } from "react"
 import { handleSaveTransaction, handleDeleteTransaction } from "@/lib/actions"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { DASHBOARD_PATH } from "@/lib/constants"
 
 interface TransactionFormProps {
   defaultValues?: TTransactionSchema
@@ -34,8 +33,6 @@ export default function TransactionForm({
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  const RETURN_PATH = `${DASHBOARD_PATH}?${searchParams}`
-
   // copy and delete buttons
   const [copyButton, setCopyButton] = useState(defaultValues?.transactionId ? true : false)
   const [deleteButton, setDeleteButton] = useState(defaultValues?.transactionId ? true : false)
@@ -51,15 +48,15 @@ export default function TransactionForm({
 
   useEffect(() => {
     if (saveState.success) {
-      router.replace(RETURN_PATH)
+      router.back()
     }
-  }, [saveState.success, router, RETURN_PATH])
+  }, [saveState.success, router])
 
   useEffect(() => {
     if (deleteState.success) {
-      router.replace(RETURN_PATH)
+      router.back()
     }
-  }, [deleteState.success, router, RETURN_PATH])
+  }, [deleteState.success, router])
 
   // check if there is a pending action
   const isPending = isSavePending || isDeletePending
@@ -89,7 +86,7 @@ export default function TransactionForm({
   }
 
   async function onCancel() {
-    router.replace(RETURN_PATH)
+    router.back()
   }
 
   return (
