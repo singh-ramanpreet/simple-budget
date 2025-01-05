@@ -31,6 +31,7 @@ export function stringToColor(str: string) {
 // new date with same timezone as the last transaction
 export async function getNewDate(loggedUserId: string) {
   const recentTransaction = await fetchTransactions(loggedUserId!, undefined, undefined, undefined, 1, 0)
-  const hours = new Date(recentTransaction.length ? recentTransaction[0].date : new Date()).getHours()
-  return new Date(new Date().setHours(hours, 0, 0, 0))
+  const hours = recentTransaction.length ? new Date(recentTransaction[0].date).getHours() : 0
+  const minutes = recentTransaction.length ? new Date(recentTransaction[0].date).getMinutes() : 0
+  return new Date(new Date().setHours(hours, minutes, 0, 0))
 }
