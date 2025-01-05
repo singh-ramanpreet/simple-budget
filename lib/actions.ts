@@ -8,12 +8,12 @@ import {
   checkMatchingMonthYear,
   deleteTransaction,
   updateTransaction,
-  fetchTransactions,
 } from "@/lib/db/transactions"
 import { headers } from "next/headers"
 import { auth } from "@/lib/auth"
 import { DASHBOARD_PATH } from "@/lib/constants"
 import { addBucket, BucketInsert, deleteBucket, updateBucket } from "./db/buckets"
+import { getNewDate } from "./utils"
 
 type SaveTransactionState = {
   message: string
@@ -29,11 +29,7 @@ export async function getUserId() {
 }
 
 export async function parseSearchParams(query: { [key: string]: string | undefined }, loggedUserId?: string) {
-  // get the latest transaction, and figure out the timezone offset
-  const recentTransaction = await fetchTransactions(loggedUserId!, undefined, undefined, undefined, 1, 0)
-  const hours = new Date(recentTransaction[0].date).getHours()
-  const currentDate = new Date(new Date().setHours(hours, 0, 0, 0))
-
+  const currentDate = await getNewDate(loggedUserId!)
   // get month, default to current month
   const month = query?.month ? parseInt(query.month) : currentDate.getMonth() + 1
   // get year, default to current year

@@ -1,12 +1,8 @@
-import {
-  fetchTransaction,
-  fetchTransactionNames,
-  fetchTransactionNotes,
-  fetchTransactions,
-} from "@/lib/db/transactions"
+import { fetchTransaction, fetchTransactionNames, fetchTransactionNotes } from "@/lib/db/transactions"
 import { fetchBuckets } from "@/lib/db/buckets"
 import { TTransactionSchema } from "@/lib/schema"
 import TransactionForm from "./transaction-form"
+import { getNewDate } from "@/lib/utils"
 
 interface TransactionEditProps {
   userId?: string
@@ -23,12 +19,8 @@ export default async function TransactionEdit({
 }: TransactionEditProps) {
   const loggedUserId = userId
 
-  // get the latest transaction, and figure out the timezone offset
-  const recentTransaction = await fetchTransactions(loggedUserId!, undefined, undefined, undefined, 1, 0)
-  const hours = new Date(recentTransaction[0].date).getHours()
-  const currentDate = new Date(new Date().setHours(hours, 0, 0, 0))
-
   // get month and year
+  const currentDate = await getNewDate(loggedUserId!)
   const currentMonth = month ?? currentDate.getMonth() + 1
   const currentYear = year ?? currentDate.getFullYear()
 

@@ -12,6 +12,7 @@ import {
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
+import { getNewDate } from "@/lib/utils"
 
 type TransactionsListProps = {
   userId: string
@@ -33,11 +34,7 @@ export default async function TransactionsList({
   // get logged in user id
   const loggedUserId = userId
 
-  // get the latest transaction, and figure out the timezone offset
-  const recentTransaction = await fetchTransactions(loggedUserId!, undefined, undefined, undefined, 1, 0)
-  const hoursDiff = new Date(recentTransaction[0].date).getHours()
-  const nowServer = new Date()
-  const currentDate = new Date(new Date().setHours(nowServer.getHours() - hoursDiff, 0, 0, 0))
+  const currentDate = await getNewDate(loggedUserId!)
 
   // get month, default to current month
   const filterMonth = month ?? currentDate.getMonth() + 1
