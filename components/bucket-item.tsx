@@ -7,7 +7,7 @@ import { DASHBOARD_PATH } from "@/lib/constants"
 
 export default function BucketItem({ bucket }: { bucket: BucketWithSum }) {
   return (
-    <Link href={`${DASHBOARD_PATH}/b/${bucket.id}?month=${bucket.month}&year=${bucket.year}`}>
+    <Link href={`${DASHBOARD_PATH}/b/${bucket.id}?month=${bucket.month}&year=${bucket.year}`} prefetch={false}>
       <li className="group flex cursor-pointer items-center justify-between rounded-lg px-4 py-3 transition-colors hover:bg-muted/50">
         <div className="flex h-12 w-full items-center justify-between gap-2">
           <div className="h-full w-20 align-top">
