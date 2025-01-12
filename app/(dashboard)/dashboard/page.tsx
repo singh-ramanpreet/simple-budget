@@ -19,7 +19,7 @@ export default async function Dashboard({
 }) {
   const query = await searchParams
   const loggedUserId = await getUserId()
-  const { month, year, categoryId, page, pageSize } = await parseSearchParams(query, loggedUserId)
+  const { month, year, categoryId, page, pageSize } = await parseSearchParams(query)
 
   const trxFilterList = await fetchBuckets(loggedUserId!)
 

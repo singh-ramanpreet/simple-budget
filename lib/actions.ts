@@ -13,7 +13,6 @@ import { headers } from "next/headers"
 import { auth } from "@/lib/auth"
 import { DASHBOARD_PATH } from "@/lib/constants"
 import { addBucket, BucketInsert, deleteBucket, updateBucket } from "./db/buckets"
-import { getNewDate } from "./utils"
 
 type SaveTransactionState = {
   message: string
@@ -28,8 +27,8 @@ export async function getUserId() {
   return session?.session?.userId
 }
 
-export async function parseSearchParams(query: { [key: string]: string | undefined }, loggedUserId?: string) {
-  const currentDate = await getNewDate(loggedUserId!)
+export async function parseSearchParams(query: { [key: string]: string | undefined }) {
+  const currentDate = new Date() // server side
   // get month, default to current month
   const month = query?.month ? parseInt(query.month) : currentDate.getMonth() + 1
   // get year, default to current year
@@ -46,10 +45,8 @@ export async function parseSearchParams(query: { [key: string]: string | undefin
 
 export async function handleSaveTransaction(prevState: SaveTransactionState, formData: FormData) {
   const data = Object.fromEntries(formData.entries())
-  const dt = new Date(data.date.toString())
   const parse = TransactionSchema.safeParse({
     ...data,
-    date: dt,
     amount: parseFloat(data.amount.toString()).toFixed(2),
   })
   if (!parse.success) {
@@ -71,7 +68,7 @@ export async function handleSaveTransaction(prevState: SaveTransactionState, for
   }
 
   // check if category id has same month and year of the transaction being added/updated
-  const check = await checkMatchingMonthYear(loggedUserId!, trx.category_id, dt)
+  const check = await checkMatchingMonthYear(loggedUserId!, trx.category_id, trx.date)
   if (!check) {
     return { message: "Category does not match the month and year of the transaction", success: false }
   }

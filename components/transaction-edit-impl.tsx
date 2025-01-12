@@ -12,7 +12,7 @@ export default async function TransactionEditImpl({
   const query = await searchParams
 
   const loggedUserId = await getUserId()
-  const { month, year } = await parseSearchParams(query, loggedUserId)
+  const { month, year } = await parseSearchParams(query)
 
   return <TransactionEdit month={month} year={year} userId={loggedUserId} transactionId={parseInt(id) || undefined} />
 }

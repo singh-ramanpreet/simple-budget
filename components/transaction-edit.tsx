@@ -2,7 +2,6 @@ import { fetchTransaction, fetchTransactionNames, fetchTransactionNotes } from "
 import { fetchBuckets } from "@/lib/db/buckets"
 import { TTransactionSchema } from "@/lib/schema"
 import TransactionForm from "./transaction-form"
-import { getNewDate } from "@/lib/utils"
 
 interface TransactionEditProps {
   userId?: string
@@ -20,7 +19,7 @@ export default async function TransactionEdit({
   const loggedUserId = userId
 
   // get month and year
-  const currentDate = await getNewDate(loggedUserId!)
+  const currentDate = new Date() // server side
   const currentMonth = month ?? currentDate.getMonth() + 1
   const currentYear = year ?? currentDate.getFullYear()
 
@@ -33,7 +32,7 @@ export default async function TransactionEdit({
   const notes = await fetchTransactionNotes(loggedUserId!)
 
   const defaultValues: TTransactionSchema = {
-    date: transaction ? new Date(transaction?.date) : currentDate,
+    date: transaction ? transaction.date : "",
     name: transaction?.name ?? "",
     amount: transaction?.amount.toString() ?? "",
     category_id: transaction?.category_id.toString() ?? "",

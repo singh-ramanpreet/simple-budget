@@ -10,7 +10,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { CalendarIcon, Loader2, Trash2 } from "lucide-react"
-import { format, formatISO } from "date-fns"
+import { format } from "date-fns"
 import { useState, useEffect, useActionState } from "react"
 import { handleSaveTransaction, handleDeleteTransaction } from "@/lib/actions"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -65,17 +65,32 @@ export default function TransactionForm({
   const form = useForm<TTransactionSchema>({
     resolver: zodResolver(TransactionSchema),
     mode: "all",
-    defaultValues: defaultValues,
+    defaultValues: {
+      ...defaultValues,
+      date: defaultValues?.date || format(new Date(), "yyyy-MM-dd"), // client side
+    },
   })
 
-  // handle copy
-  // set date to current date and clear transaction ID
+  /**
+   * handles copy,
+   * sets date to current date and clears transaction ID
+   */
   async function handleCopy() {
-    form.setValue("date", new Date())
+    form.setValue("date", format(new Date(), "yyyy-MM-dd"))
     onDateChange(new Date())
     form.setValue("transactionId", "")
     setCopyButton(false)
     setDeleteButton(false)
+  }
+
+  /**
+   * Creates a new Date object from a string date in 'YYYY-MM-DD' format
+   * @param date - String date in 'YYYY-MM-DD' format (e.g. '2023-12-25')
+   * @returns A new Date object representing the input date
+   * @remarks The month value is adjusted by -1 since JavaScript Date months are 0-based (0-11)
+   */
+  function newDate(date: string) {
+    return new Date(parseInt(date.substring(0, 4)), parseInt(date.substring(5, 7)) - 1, parseInt(date.substring(8, 10)))
   }
 
   async function onDateChange(date: Date) {
@@ -109,14 +124,14 @@ export default function TransactionForm({
             name="date"
             render={({ field }) => (
               <FormItem>
-                <input type="hidden" name={field.name} value={formatISO(field.value.setHours(0, 0, 0, 0))} />
+                <input type="hidden" name={field.name} value={field.value} />
                 <div className="flex items-center justify-end space-x-2">
                   <FormLabel className="text-right">Date</FormLabel>
                   <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                     <PopoverTrigger asChild>
                       <FormControl className="w-2/3">
                         <Button type="button" variant="outline" className="pl-3 text-left">
-                          {field.value ? format(field.value, "PPP") : "Select a date"}
+                          {field.value ? format(newDate(field.value), "PPP") : "Select a date"}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
                       </FormControl>
@@ -124,15 +139,15 @@ export default function TransactionForm({
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
-                        selected={field.value}
+                        selected={newDate(field.value)}
                         onSelect={(date) => {
                           if (date) {
-                            field.onChange(date)
+                            field.onChange(format(date, "yyyy-MM-dd"))
                             onDateChange(date)
                             setIsCalendarOpen(false)
                           }
                         }}
-                        defaultMonth={field.value}
+                        defaultMonth={newDate(field.value)}
                       />
                     </PopoverContent>
                   </Popover>

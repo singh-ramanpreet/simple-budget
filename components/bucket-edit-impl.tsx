@@ -12,7 +12,7 @@ export default async function BucketEditImpl({
   const query = await searchParams
 
   const loggedUserId = await getUserId()
-  const { month, year } = await parseSearchParams(query, loggedUserId)
+  const { month, year } = await parseSearchParams(query)
 
   return <BucketEdit month={month} year={year} userId={loggedUserId} bucketId={parseInt(id) || undefined} />
 }
