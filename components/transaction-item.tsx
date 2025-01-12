@@ -15,6 +15,7 @@ export default function TransactionItem({ transaction }: TransactionItemProps) {
     <Link
       href={`${DASHBOARD_PATH}/t/${transaction.id}?month=${date.getMonth() + 1}&year=${date.getFullYear()}`}
       prefetch={false}
+      scroll={false}
     >
       <li className="group flex cursor-pointer items-center justify-between rounded-lg p-2 transition-colors hover:bg-muted">
         <div className="flex min-w-0 flex-1 items-center gap-2">
