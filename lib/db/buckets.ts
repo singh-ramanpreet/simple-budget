@@ -7,6 +7,8 @@ import { budget_buckets, budget_transactions } from "./schema"
 // type of bucket
 export type Bucket = typeof budget_buckets.$inferSelect
 
+export type BucketInsert = typeof budget_buckets.$inferInsert
+
 export interface BucketWithSum extends Bucket {
   transactions_sum: number | undefined
 }

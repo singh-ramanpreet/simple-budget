@@ -1,8 +1,3 @@
-"use client"
-
-import { useCallback, useEffect, useState } from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
-import { authClient } from "@/lib/auth/client"
 import { Transaction, fetchTransactions } from "@/lib/db/transactions"
 import TransactionItem from "./transaction-item"
 import {
@@ -14,104 +9,90 @@ import {
   PaginationEllipsis,
   PaginationNext,
 } from "@/components/ui/pagination"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 
-interface TransactionsListProps {
-  refresh: boolean
+type TransactionsListProps = {
+  userId: string
   month?: number
   year?: number
   categoryId?: number
-  OnEditTransaction: (() => void)[]
+  page?: number
+  pageSize?: number
 }
 
-export default function TransactionsList({
-  refresh,
+export default async function TransactionsList({
+  userId,
   month,
   year,
   categoryId,
-  OnEditTransaction,
+  page,
+  pageSize,
 }: TransactionsListProps) {
-  const [transactions, setTransactions] = useState<Transaction[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [currentDate, setCurrentDate] = useState(new Date())
-  const [filterMonth, setFilterMonth] = useState<number | undefined>()
-  const [filterYear, setFilterYear] = useState<number | undefined>()
-  const filterCategoryId = categoryId
-  const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-  const itemsPerPage = 10
+  // get logged in user id
+  const loggedUserId = userId
 
-  const refreshTransactions = useCallback(async () => {
-    setIsLoading(true)
-    try {
-      const { data: session } = await authClient.getSession()
-      const userId = session?.user?.id || ""
-      if (!userId) {
-        return
-      }
-      const result = await fetchTransactions(
-        userId,
-        filterMonth,
-        filterYear,
-        filterCategoryId,
-        itemsPerPage,
-        (currentPage - 1) * itemsPerPage
-      )
-      setTransactions(result)
-      setTotalPages(Math.ceil(result.length > 0 ? result[0].total_count / itemsPerPage : 0))
-    } finally {
-      setIsLoading(false)
-    }
-  }, [filterMonth, filterYear, filterCategoryId, currentPage])
+  const currentDate = new Date() // server side
 
-  useEffect(() => {
-    refreshTransactions()
-  }, [refresh, refreshTransactions])
+  // get month, default to current month
+  const filterMonth = month ?? currentDate.getMonth() + 1
+  // get year, default to current year
+  const filterYear = year ?? currentDate.getFullYear()
+  // get category id, default to undefined
+  const filterCategoryId = categoryId ?? undefined
+  // get current page, default to 1
+  const currentPage = page ?? 1
+  // items per page, default to 10
+  const itemsPerPage = pageSize ?? 10
 
+  // fetch transactions
+  const transactions = await fetchTransactions(
+    loggedUserId!,
+    filterMonth,
+    filterYear,
+    filterCategoryId,
+    itemsPerPage,
+    (currentPage - 1) * itemsPerPage
+  )
+  // total pages
+  const totalPages = Math.ceil(transactions.length > 0 ? transactions[0].total_count / itemsPerPage : 0)
+
+  // navigate month
   const navigateMonth = (delta: number) => {
-    setCurrentDate((prev) => {
-      const newDate = new Date(prev)
-      newDate.setMonth(prev.getMonth() + delta)
-      setFilterMonth(newDate.getMonth() + 1)
-      setFilterYear(newDate.getFullYear())
-      return newDate
-    })
+    let href = `?`
+    const newDate = new Date(filterYear, filterMonth - 1 + delta, 15)
+    const newMonth = newDate.getMonth() + 1
+    const newYear = newDate.getFullYear()
+    href += `month=${newMonth}&year=${newYear}`
+    href += `&page=${1}`
+    return href
   }
 
-  if (!filterMonth || !filterYear) {
-    navigateMonth(0)
-  }
-
-  if (month && year) {
-    if (month !== filterMonth || year !== filterYear) {
-      const delta = (year - filterYear!) * 12 + (month - filterMonth!)
-      navigateMonth(delta)
+  // pagination href
+  const paginationHref = (page: string | number) => {
+    let href = `?month=${filterMonth}&year=${filterYear}`
+    if (filterCategoryId) {
+      href += `&categoryId=${filterCategoryId}`
     }
+    href += `&page=${page}`
+    return href
   }
 
-  if (isLoading) {
-    return <div>Loading transactions...</div>
-  }
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page)
-  }
-
+  // generate pagination
   const generatePagination = () => {
     if (totalPages <= 5) {
       // Show all pages if total is 5 or less
       return Array.from({ length: totalPages }, (_, i) => i + 1)
     }
-
     if (currentPage <= 3) {
       // Near the start
       return [1, 2, 3, "ellipsis", totalPages]
     }
-
     if (currentPage >= totalPages - 2) {
       // Near the end
       return [1, "ellipsis", totalPages - 2, totalPages - 1, totalPages]
     }
-
     // In the middle
     return [1, "ellipsis", currentPage, "ellipsis", totalPages]
   }
@@ -138,17 +119,21 @@ export default function TransactionsList({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <button onClick={() => navigateMonth(-1)} className="rounded-full p-2 hover:bg-muted">
-          <ChevronLeft className="h-5 w-5 text-muted-foreground" />
-        </button>
+        <Button asChild variant="link" className="rounded-full hover:bg-muted">
+          <Link href={navigateMonth(-1)} scroll={false}>
+            <ChevronLeft className="text-muted-foreground" />
+          </Link>
+        </Button>
 
         <h2 className="text-lg font-medium">
-          {currentDate.toLocaleString("default", { month: "long", year: "numeric" })}
+          {new Date(filterYear!, filterMonth! - 1, 15).toLocaleString("default", { month: "long", year: "numeric" })}
         </h2>
 
-        <button onClick={() => navigateMonth(1)} className="rounded-full p-2 hover:bg-muted">
-          <ChevronRight className="h-5 w-5 text-muted-foreground" />
-        </button>
+        <Button asChild variant="link" className="rounded-full hover:bg-muted">
+          <Link href={navigateMonth(1)} scroll={false}>
+            <ChevronRight className="text-muted-foreground" />
+          </Link>
+        </Button>
       </div>
 
       <div className="space-y-2">
@@ -157,7 +142,7 @@ export default function TransactionsList({
             <h3 className="text-sm text-muted-foreground">{getDayOfWeek(new Date(day))}</h3>
             <ul className="space-y-1">
               {dayTransactions.map((transaction) => (
-                <TransactionItem key={transaction.id} transaction={transaction} OnEditTransaction={OnEditTransaction} />
+                <TransactionItem key={transaction.id} transaction={transaction} />
               ))}
             </ul>
           </div>
@@ -168,7 +153,7 @@ export default function TransactionsList({
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious
-              onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+              href={paginationHref(currentPage - 1)}
               className={`cursor-pointer ${currentPage === 1 ? "pointer-events-none opacity-50" : ""}`}
             />
           </PaginationItem>
@@ -178,11 +163,7 @@ export default function TransactionsList({
               {page === "ellipsis" ? (
                 <PaginationEllipsis />
               ) : (
-                <PaginationLink
-                  onClick={() => handlePageChange(page as number)}
-                  isActive={currentPage === page}
-                  className="cursor-pointer"
-                >
+                <PaginationLink href={paginationHref(page)} isActive={currentPage === page} className="cursor-pointer">
                   {page}
                 </PaginationLink>
               )}
@@ -191,7 +172,7 @@ export default function TransactionsList({
 
           <PaginationItem>
             <PaginationNext
-              onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+              href={paginationHref(currentPage + 1)}
               className={`cursor-pointer ${currentPage === totalPages ? "pointer-events-none opacity-50" : ""}`}
             />
           </PaginationItem>

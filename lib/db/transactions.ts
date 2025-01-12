@@ -5,6 +5,7 @@ import { db } from "./drizzle"
 import { budget_transactions, budget_buckets } from "./schema"
 
 export type Transaction = typeof budget_transactions.$inferSelect & { category: string | null }
+export type TransactionInsert = typeof budget_transactions.$inferInsert
 
 const transaction_columns = {
   id: budget_transactions.id,
@@ -16,8 +17,13 @@ const transaction_columns = {
   notes: budget_transactions.notes,
 }
 
-// check if category id has same month and year of the transaction being added/updated
-export async function checkMatchingMonthYear(userId: string, categoryId: number, date: Date) {
+/**
+ * check if category id has same month and year of the transaction being added/updated
+ * @param userId
+ * @param categoryId
+ * @param date - date of the transaction in string format (yyyy-mm-dd)
+ */
+export async function checkMatchingMonthYear(userId: string, categoryId: number, date: string) {
   const result = await db
     .select({ id: budget_buckets.id })
     .from(budget_buckets)
@@ -25,8 +31,8 @@ export async function checkMatchingMonthYear(userId: string, categoryId: number,
       and(
         eq(budget_buckets.userId, userId),
         eq(budget_buckets.id, categoryId),
-        eq(budget_buckets.month, date.getMonth() + 1),
-        eq(budget_buckets.year, date.getFullYear())
+        eq(budget_buckets.month, parseInt(date.split("-")[1])),
+        eq(budget_buckets.year, parseInt(date.split("-")[0]))
       )
     )
     .get()
