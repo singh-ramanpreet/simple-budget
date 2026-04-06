@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
-import { Toaster } from "@/components/ui/toaster"
 import { Geist, Geist_Mono } from "next/font/google"
+import { FileHandleProvider } from "@/components/providers/file-handle-provider"
 import "./globals.css"
 
 const geistSans = Geist({
@@ -16,6 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Simple Budget",
   description: "Simple Budget is a simple budgeting app",
+  manifest: "/manifest.webmanifest",
 }
 
 export default function RootLayout({
@@ -26,8 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} dark antialiased`}>
-        {children}
-        <Toaster />
+        <FileHandleProvider>{children}</FileHandleProvider>
       </body>
     </html>
   )

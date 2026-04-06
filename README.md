@@ -59,43 +59,43 @@ Use VS Code with Dev Containers. Reopen the project folder in the container to g
 Install dependencies:
 
 ```bash
-pnpm install
+bun install
 ```
 
 Create the database file locally
 
 ```bash
-pnpm db:push
+bun run db:push
 ```
 
 Run the development server:
 
 ```bash
-pnpm dev
+bun dev
 ```
 
 Build for production to test the production build:
 
 ```bash
-pnpm build
-pnpm start
+bun run build
+bun start
 ```
 
 Lint and format:
 
 ```bash
-pnpm lint
-pnpm format
+bun run lint
+bun run format
 ```
 
 ## Database
 
 This project uses `drizzle-kit` for migrations. Available npm scripts in `package.json`:
 
-- `pnpm db:push` — push schema to the database
-- `pnpm db:generate` — generate migration files
-- `pnpm db:migrate` — run migrations
-- `pnpm db:studio` — open Drizzle Studio
+- `bun run db:push` — push schema to the database
+- `bun run db:generate` — generate migration files
+- `bun run db:migrate` — run migrations
+- `bun run db:studio` — open Drizzle Studio
 
 Configure your database connection via environment variables (see `.env.sample`).
 
