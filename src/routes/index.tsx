@@ -2,17 +2,18 @@ import { createFileRoute } from "@tanstack/react-router"
 
 import { useMemo, useState } from "react"
 import { useFileHandle } from "@/components/providers/file-handle-provider"
-import EmptyState from "@/components/dashboard/empty-state"
+import { FileHandleManager } from "@/components/file-handle-manager"
 import TransactionsCard from "@/components/dashboard/transactions-card"
 import BucketsCard from "@/components/dashboard/buckets-card"
 import { toRecord } from "@/components/dashboard/types"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 export const Route = createFileRoute("/")({
   component: HomePage,
 })
 
 function HomePage() {
-  const { data, fileHandle, isLoading, syncWithFile } = useFileHandle()
+  const { data, fileHandle, hasPermission, isLoading } = useFileHandle()
 
   const now = new Date()
   const [filterMonth, setFilterMonth] = useState(now.getMonth() + 1)
@@ -28,8 +29,6 @@ function HomePage() {
     setFilterYear(d.getFullYear())
   }
 
-  // ── Render guards ─────────────────────────────────────────────────────────
-
   if (isLoading) {
     return (
       <div className="text-muted-foreground flex min-h-[400px] animate-pulse flex-col items-center justify-center italic">
@@ -38,11 +37,30 @@ function HomePage() {
     )
   }
 
-  if (!fileHandle) {
-    return <EmptyState />
+  if (!fileHandle || !hasPermission) {
+    return (
+      <div className="flex flex-col items-center space-y-4 pt-5">
+        <Card className="border-primary/20 shadow-primary/5 from-background to-secondary/20 relative w-full max-w-md overflow-hidden bg-linear-to-br shadow-lg">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <span>Welcome to Simple Budget</span>
+            </div>
+            <CardDescription>
+              Data is locally stored in a CSV file format on your device. Select an existing CSV file or create a new
+              one to store your data.
+              <br />
+              <br />
+              The access to file is usually lost on browser refresh or tabs close. Please grant access again to
+              continue.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <FileHandleManager />
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
-
-  // ── Main dashboard ────────────────────────────────────────────────────────
 
   return (
     <div className="flex flex-col items-center space-y-4 py-4">
@@ -52,7 +70,6 @@ function HomePage() {
         month={filterMonth}
         year={filterYear}
         onNavigate={navigateMonth}
-        onRefresh={() => syncWithFile()}
       />
 
       {/* Buckets */}
@@ -61,7 +78,6 @@ function HomePage() {
         month={filterMonth}
         year={filterYear}
         onNavigate={navigateMonth}
-        onRefresh={() => syncWithFile()}
       />
     </div>
   )

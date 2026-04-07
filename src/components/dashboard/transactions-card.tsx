@@ -7,7 +7,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { FilterIcon, FilterRemoveIcon, ReceiptTextIcon, Refresh01Icon } from "@hugeicons/core-free-icons"
+import { FilterIcon, FilterRemoveIcon, ReceiptTextIcon } from "@hugeicons/core-free-icons"
 import MonthNavigator from "./month-navigator"
 import TransactionItem from "./transaction-item"
 import { parseLocalDate } from "./types"
@@ -32,10 +32,9 @@ interface TransactionsCardProps {
   month: number
   year: number
   onNavigate: (delta: number) => void
-  onRefresh: () => void
 }
 
-export default function TransactionsCard({ records, month, year, onNavigate, onRefresh }: TransactionsCardProps) {
+export default function TransactionsCard({ records, month, year, onNavigate }: TransactionsCardProps) {
   const [filterCategory, setFilterCategory] = useState<string | undefined>(undefined)
   const [filterDialogOpen, setFilterDialogOpen] = useState(false)
   const [selectedFilter, setSelectedFilter] = useState<string | undefined>(undefined)
@@ -150,10 +149,6 @@ export default function TransactionsCard({ records, month, year, onNavigate, onR
                 </div>
               </DialogContent>
             </Dialog>
-
-            {/* Refresh from file */}
-            <div className="size-2" />
-            <HugeiconsIcon icon={Refresh01Icon} onClick={onRefresh} className="cursor-pointer active:animate-spin" />
           </div>
         </CardTitle>
       </CardHeader>

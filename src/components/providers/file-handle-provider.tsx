@@ -40,6 +40,9 @@ interface FileHandleContextType {
 
   /** Forces a refresh from the physical CSV file */
   syncWithFile: () => Promise<void>
+
+  /** Prompts the user to create a new CSV file */
+  createFile: () => Promise<void>
 }
 
 const FileHandleContext = createContext<FileHandleContextType | undefined>(undefined)
@@ -193,6 +196,36 @@ export function FileHandleProvider({ children }: { children: React.ReactNode }) 
   }, [])
 
   /**
+   * Prompts the user to create a new CSV file and initializes it with headers.
+   */
+  const createFile = useCallback(async () => {
+    try {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: "budget.csv",
+        types: [
+          {
+            description: "CSV Data File",
+            accept: { "text/csv": [".csv"] },
+          },
+        ],
+      })
+
+      // Initialize with headers
+      const writable = await handle.createWritable()
+      await writable.write("date,name,amount,category,category_limit,notes")
+      await writable.close()
+
+      await setFileHandle(handle)
+      setFileHandleState(handle)
+      setHasPermission(true)
+      setDataState([])
+      await setLocalData("records", [])
+    } catch (err) {
+      if ((err as Error).name !== "AbortError") console.error("Create file failed:", err)
+    }
+  }, [])
+
+  /**
    * Updates global records and persists them to disk.
    * This is a React state update + IDB save + File Systen Write.
    *
@@ -261,6 +294,7 @@ export function FileHandleProvider({ children }: { children: React.ReactNode }) 
         data,
         setData,
         syncWithFile,
+        createFile,
       }}
     >
       {children}

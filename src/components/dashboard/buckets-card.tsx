@@ -10,7 +10,7 @@
 
 import { useMemo } from "react"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { Folder02Icon, Refresh01Icon } from "@hugeicons/core-free-icons"
+import { Folder02Icon } from "@hugeicons/core-free-icons"
 import MonthNavigator from "./month-navigator"
 import { parseLocalDate, pct } from "./types"
 import EditBucketDialog from "./edit-bucket-dialog"
@@ -26,10 +26,9 @@ interface BucketsCardProps {
   month: number
   year: number
   onNavigate: (delta: number) => void
-  onRefresh: () => void
 }
 
-export default function BucketsCard({ records, month, year, onNavigate, onRefresh }: BucketsCardProps) {
+export default function BucketsCard({ records, month, year, onNavigate }: BucketsCardProps) {
   /**
    * Buckets for the active month.
    * Limits come from special "limit records" (name === "", category_limit > 0).
@@ -80,9 +79,7 @@ export default function BucketsCard({ records, month, year, onNavigate, onRefres
             <HugeiconsIcon icon={Folder02Icon} />
             <span>Buckets</span>
           </div>
-          <div className="flex items-center gap-2">
-            <HugeiconsIcon icon={Refresh01Icon} onClick={onRefresh} className="cursor-pointer active:animate-spin" />
-          </div>
+          <div className="flex items-center gap-2"></div>
         </CardTitle>
       </CardHeader>
       <CardContent>
