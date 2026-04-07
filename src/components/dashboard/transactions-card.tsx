@@ -164,7 +164,7 @@ export default function TransactionsCard({ records, month, year, onNavigate }: T
             )}
             {groupedTransactions.map(([date, items]) => (
               <div key={date}>
-                <h3 className="mb-2 text-xs font-semibold tracking-wider text-zinc-500 uppercase">
+                <h3 className="mb-2 text-xs font-semibold tracking-wider uppercase">
                   {(() => {
                     const { year: y, month: m, day: d } = parseLocalDate(date)
                     return new Date(y, m - 1, d).toLocaleDateString("default", {
@@ -187,7 +187,7 @@ export default function TransactionsCard({ records, month, year, onNavigate }: T
 
           {/* Pagination Controls */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between border-t border-zinc-800 pt-4">
+            <div className="flex items-center justify-between border-t pt-4">
               <Button
                 variant="outline"
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
@@ -216,7 +216,7 @@ export default function TransactionsCard({ records, month, year, onNavigate }: T
                   return pages.map((page, idx) => {
                     if (page === "...") {
                       return (
-                        <span key={`ellipsis-${idx}`} className="px-2 text-zinc-500">
+                        <span key={`ellipsis-${idx}`} className="px-2">
                           ...
                         </span>
                       )
@@ -226,7 +226,7 @@ export default function TransactionsCard({ records, month, year, onNavigate }: T
                         key={page}
                         variant={currentPage === page ? "default" : "ghost"}
                         className={cn("h-8 w-8 p-0", {
-                          "pointer-events-none bg-zinc-800 text-white": currentPage === page,
+                          "pointer-events-none": currentPage === page,
                         })}
                         onClick={() => setCurrentPage(page as number)}
                       >

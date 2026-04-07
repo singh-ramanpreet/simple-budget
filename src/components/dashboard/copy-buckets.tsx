@@ -99,21 +99,21 @@ export default function CopyBuckets({ month, year }: CopyBucketsProps) {
         <div className="my-4">
           {categoriesToCopy.length > 0 ? (
             <>
-              <p className="mb-2 text-sm font-semibold text-zinc-400">The following buckets will be added:</p>
-              <div className="max-h-40 overflow-y-auto rounded-lg border border-zinc-800 bg-zinc-900/50 p-3">
+              <p className="mb-2 text-sm font-semibold">The following buckets will be added:</p>
+              <div className="bg-muted max-h-40 overflow-y-auto rounded-lg border p-3">
                 <ul className="flex flex-col gap-2 text-sm">
                   {categoriesToCopy.map((bucket) => (
-                    <li key={bucket.category} className="flex items-center justify-between gap-2 text-zinc-300">
+                    <li key={bucket.category} className="flex items-center justify-between gap-2">
                       <span className="truncate">{bucket.category}</span>
-                      <span className="font-mono text-zinc-500">${parseFloat(bucket.category_limit).toFixed(0)}</span>
+                      <span className="font-mono">${parseFloat(bucket.category_limit).toFixed(0)}</span>
                     </li>
                   ))}
                 </ul>
               </div>
             </>
           ) : (
-            <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-6 text-center">
-              <p className="text-sm text-zinc-400 italic">No new buckets to copy from {prevMonthName}.</p>
+            <div className="bg-muted rounded-lg border p-6 text-center">
+              <p className="text-sm italic">No new buckets to copy from {prevMonthName}.</p>
             </div>
           )}
         </div>

@@ -28,7 +28,7 @@ function RootLayout() {
       <head>
         <HeadContent />
       </head>
-      <body className="dark">
+      <body className="light">
         <FileHandleProvider>
           <div className="mx-auto max-w-2xl p-2 pb-32">
             <Outlet />
