@@ -20,6 +20,8 @@ export interface TransactionFormFieldsProps {
   notes: string
   setNotes: (v: string) => void
   existingCategories: Array<string>
+  existingNames: Array<string>
+  existingNotes: Array<string>
 }
 
 export function TransactionFormFields({
@@ -34,6 +36,8 @@ export function TransactionFormFields({
   notes,
   setNotes,
   existingCategories,
+  existingNames,
+  existingNotes,
 }: TransactionFormFieldsProps) {
   const [calendarOpen, setCalendarOpen] = useState(false)
 
@@ -67,7 +71,21 @@ export function TransactionFormFields({
       <Label htmlFor="txn-name" className="text-right font-medium">
         Name *
       </Label>
-      <Input id="txn-name" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
+      <div className="relative">
+        <Input
+          id="txn-name"
+          placeholder="Name"
+          value={name}
+          list="existing-names"
+          onChange={(e) => setName(e.target.value)}
+          autoComplete="off"
+        />
+        <datalist id="existing-names">
+          {existingNames.map((n) => (
+            <option key={n} value={n} />
+          ))}
+        </datalist>
+      </div>
 
       {/* Amount */}
       <Label htmlFor="txn-amount" className="text-right font-medium">
@@ -82,7 +100,7 @@ export function TransactionFormFields({
         onChange={(e) => setAmount(e.target.value)}
       />
 
-      {/* Category */}
+      {/* Category * */}
       <Label htmlFor="txn-category" className="text-right font-medium">
         Category *
       </Label>
@@ -107,7 +125,21 @@ export function TransactionFormFields({
       <Label htmlFor="txn-notes" className="text-right font-medium">
         Notes
       </Label>
-      <Input id="txn-notes" placeholder="Notes" value={notes} onChange={(e) => setNotes(e.target.value)} />
+      <div className="relative">
+        <Input
+          id="txn-notes"
+          placeholder="Notes"
+          value={notes}
+          list="existing-notes"
+          onChange={(e) => setNotes(e.target.value)}
+          autoComplete="off"
+        />
+        <datalist id="existing-notes">
+          {existingNotes.map((n) => (
+            <option key={n} value={n} />
+          ))}
+        </datalist>
+      </div>
     </div>
   )
 }

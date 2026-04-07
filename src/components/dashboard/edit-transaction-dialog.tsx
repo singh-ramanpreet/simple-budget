@@ -40,6 +40,14 @@ export default function EditTransactionDialog({ record, children }: EditTransact
     return [...new Set(records.map((r) => r.category).filter(Boolean))].sort()
   }, [data, date])
 
+  /** Global unique names and notes for autocomplete */
+  const { existingNames, existingNotes } = useMemo(() => {
+    const records = data.map(toRecord)
+    const allNames = [...new Set(records.map((r) => r.name).filter(Boolean))].sort()
+    const allNotes = [...new Set(records.map((r) => r.notes).filter(Boolean))].sort()
+    return { existingNames: allNames, existingNotes: allNotes }
+  }, [data])
+
   const handleOpenChange = (v: boolean) => {
     setOpen(v)
     if (v) {
@@ -147,6 +155,8 @@ export default function EditTransactionDialog({ record, children }: EditTransact
             notes={notes}
             setNotes={setNotes}
             existingCategories={existingCategories}
+            existingNames={existingNames}
+            existingNotes={existingNotes}
           />
 
           <TransactionFooter

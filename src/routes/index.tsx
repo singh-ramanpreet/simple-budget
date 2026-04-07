@@ -6,7 +6,7 @@ import { FileHandleManager } from "@/components/file-handle-manager"
 import TransactionsCard from "@/components/dashboard/transactions-card"
 import BucketsCard from "@/components/dashboard/buckets-card"
 import { toRecord } from "@/components/dashboard/types"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card"
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -65,20 +65,10 @@ function HomePage() {
   return (
     <div className="flex flex-col items-center space-y-4 py-4">
       {/* Transactions */}
-      <TransactionsCard
-        records={records}
-        month={filterMonth}
-        year={filterYear}
-        onNavigate={navigateMonth}
-      />
+      <TransactionsCard records={records} month={filterMonth} year={filterYear} onNavigate={navigateMonth} />
 
       {/* Buckets */}
-      <BucketsCard
-        records={records}
-        month={filterMonth}
-        year={filterYear}
-        onNavigate={navigateMonth}
-      />
+      <BucketsCard records={records} month={filterMonth} year={filterYear} onNavigate={navigateMonth} />
     </div>
   )
 }
