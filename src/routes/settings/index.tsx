@@ -24,7 +24,7 @@ function SettingsPage() {
       </Card>
 
       {/* Appearance */}
-      <Card className="from-background to-secondary/10 w-full bg-linear-to-br shadow-md">
+      <Card className="w-full">
         <CardHeader>
           <div className="flex items-center gap-2">
             <HugeiconsIcon icon={Sun01Icon} />
@@ -69,7 +69,7 @@ function SettingsPage() {
       </Card>
 
       {/* Data Storage */}
-      <Card className="border-primary/20 shadow-primary/5 from-background to-secondary/20 relative w-full overflow-hidden bg-linear-to-br shadow-lg">
+      <Card className="w-full">
         <CardHeader>
           <div className="flex items-center gap-2">
             <HugeiconsIcon icon={Database02Icon} />
