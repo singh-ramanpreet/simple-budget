@@ -11,12 +11,12 @@ export const Route = createRootRoute({
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Simple Budget" },
-    ],
-    links: [
-      { rel: "stylesheet", href: appCss },
-      { rel: "manifest", href: "/manifest.webmanifest" },
       { name: "theme-color", content: "#0a0a0a", media: "(prefers-color-scheme: dark)" },
       { name: "theme-color", content: "#ffffff", media: "(prefers-color-scheme: light)" },
+    ],
+    links: [
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.ico" },
       { rel: "apple-touch-icon", href: "/apple-icon.png" },
     ],
