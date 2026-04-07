@@ -1,4 +1,4 @@
-import { DB_NAME, STORE_NAME, HANDLE_KEY, DATA_STORE } from "@/lib/constants"
+import { DATA_STORE, DB_NAME, HANDLE_KEY, STORE_NAME } from "@/lib/constants"
 
 /**
  * Retrieves the persisted FileSystemFileHandle from IndexedDB.
@@ -113,7 +113,7 @@ export async function clearFileHandle(): Promise<void> {
  * @param key The specific cache key (e.g., 'records')
  * @returns Array of data items
  */
-export async function getLocalData<T>(key: "records"): Promise<T[]> {
+export async function getLocalData<T>(key: "records"): Promise<Array<T>> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, 1)
 
@@ -143,7 +143,7 @@ export async function getLocalData<T>(key: "records"): Promise<T[]> {
  * @param key The specific cache key (e.g., 'records')
  * @param data Array of items to persist
  */
-export async function setLocalData<T>(key: "records", data: T[]): Promise<void> {
+export async function setLocalData<T>(key: "records", data: Array<T>): Promise<void> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, 1)
 

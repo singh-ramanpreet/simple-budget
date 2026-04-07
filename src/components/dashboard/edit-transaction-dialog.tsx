@@ -1,12 +1,11 @@
-"use client"
-
-import { useState, useMemo } from "react"
+import { useMemo, useState } from "react"
 import { format } from "date-fns"
-import { Button } from "@/components/ui/button"
+import { TransactionFormFields } from "./transaction-form-fields"
+import { TransactionFooter } from "./transaction-footer"
+import type { CsvRecord } from "@/components/dashboard/types"
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { useFileHandle } from "@/components/providers/file-handle-provider"
-import { toRecord, CsvRecord, parseLocalDate } from "@/components/dashboard/types"
-import { TransactionFormFields } from "./transaction-form-fields"
+import { parseLocalDate, toRecord } from "@/components/dashboard/types"
 
 interface EditTransactionDialogProps {
   record: CsvRecord
@@ -30,9 +29,16 @@ export default function EditTransactionDialog({ record, children }: EditTransact
   const [notes, setNotes] = useState(record.notes)
 
   const existingCategories = useMemo(() => {
-    const records = data.map(toRecord)
+    const targetMonth = date.getMonth() + 1
+    const targetYear = date.getFullYear()
+
+    const records = data.map(toRecord).filter((r) => {
+      const { month: rMonth, year: rYear } = parseLocalDate(r.date)
+      return rMonth === targetMonth && rYear === targetYear
+    })
+
     return [...new Set(records.map((r) => r.category).filter(Boolean))].sort()
-  }, [data])
+  }, [data, date])
 
   const handleOpenChange = (v: boolean) => {
     setOpen(v)
@@ -101,50 +107,55 @@ export default function EditTransactionDialog({ record, children }: EditTransact
     setOpen(false)
   }
 
+  const handleCopy = () => {
+    const today = new Date()
+    const isSameMonth =
+      date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear()
+
+    const detail = {
+      name: name.trim(),
+      amount: amount.trim(),
+      category: isSameMonth ? category.trim() : "",
+      notes: notes.trim(),
+      date: today,
+    }
+    window.dispatchEvent(new CustomEvent("copy-transaction", { detail }))
+    setOpen(false)
+  }
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="border-zinc-800 bg-[#0f0f0f] p-6 text-zinc-100">
-        <DialogTitle className="block w-full rounded-lg border border-zinc-800 bg-[#1a1a1a] py-3 text-center text-sm font-semibold tracking-wide">
-          Edit Transaction
-        </DialogTitle>
+      <DialogTrigger>{children}</DialogTrigger>
+      <DialogContent showCloseButton={false}>
+        <DialogTitle className="py-3 text-center">Edit Transaction</DialogTitle>
 
-        <TransactionFormFields
-          date={date}
-          setDate={setDate}
-          name={name}
-          setName={setName}
-          amount={amount}
-          setAmount={setAmount}
-          category={category}
-          setCategory={setCategory}
-          notes={notes}
-          setNotes={setNotes}
-          existingCategories={existingCategories}
-        />
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            handleSave()
+          }}
+        >
+          <TransactionFormFields
+            date={date}
+            setDate={setDate}
+            name={name}
+            setName={setName}
+            amount={amount}
+            setAmount={setAmount}
+            category={category}
+            setCategory={setCategory}
+            notes={notes}
+            setNotes={setNotes}
+            existingCategories={existingCategories}
+          />
 
-        {/* Actions */}
-        <div className="mt-4 flex justify-between gap-3 border-t border-zinc-800 pt-4">
-          <Button variant="destructive" onClick={handleDelete} className="w-1/3">
-            Delete
-          </Button>
-          <div className="flex w-2/3 gap-3">
-            <Button
-              onClick={handleSave}
-              disabled={!name.trim() || !amount.trim()}
-              className="flex-1 bg-white text-black hover:bg-zinc-200"
-            >
-              Save
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => setOpen(false)}
-              className="flex-1 border-zinc-800 bg-[#1f1f1f] text-white hover:bg-[#2a2a2a] hover:text-white"
-            >
-              Cancel
-            </Button>
-          </div>
-        </div>
+          <TransactionFooter
+            onCancel={() => setOpen(false)}
+            onDelete={handleDelete}
+            onCopy={handleCopy}
+            isSaveDisabled={!name.trim() || !amount.trim() || !category.trim()}
+          />
+        </form>
       </DialogContent>
     </Dialog>
   )

@@ -1,5 +1,3 @@
-"use client"
-
 /**
  * TransactionsCard
  *
@@ -7,10 +5,18 @@
  * Includes the category filter dialog and a refresh button.
  */
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { FilterIcon, FilterRemoveIcon, ReceiptTextIcon, Refresh01Icon } from "@hugeicons/core-free-icons"
+import MonthNavigator from "./month-navigator"
+import TransactionItem from "./transaction-item"
+import { parseLocalDate } from "./types"
+import AddTransactionDialog from "./add-transaction-dialog"
+import EditTransactionDialog from "./edit-transaction-dialog"
+import type { CsvRecord } from "./types"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ListOrdered, RotateCw, Filter, FilterX } from "lucide-react"
+import { cn } from "@/lib/utils"
 import {
   Dialog,
   DialogContent,
@@ -20,12 +26,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import MonthNavigator from "./month-navigator"
-import TransactionItem from "./transaction-item"
-import { CsvRecord, parseLocalDate } from "./types"
 
 interface TransactionsCardProps {
-  records: CsvRecord[]
+  records: Array<CsvRecord>
   month: number
   year: number
   onNavigate: (delta: number) => void
@@ -36,63 +39,83 @@ export default function TransactionsCard({ records, month, year, onNavigate, onR
   const [filterCategory, setFilterCategory] = useState<string | undefined>(undefined)
   const [filterDialogOpen, setFilterDialogOpen] = useState(false)
   const [selectedFilter, setSelectedFilter] = useState<string | undefined>(undefined)
+  const [currentPage, setCurrentPage] = useState(1)
+  const pageSize = 10
 
-  /** Unique categories across all records */
+  // Reset pagination when month, year, or filter changes
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [month, year, filterCategory])
+
+  /** Unique categories for the active month/year */
   const allCategories = useMemo(() => {
-    return [...new Set(records.map((r) => r.category).filter(Boolean))].sort()
-  }, [records])
+    return [
+      ...new Set(
+        records
+          .filter((r) => {
+            const { month: rMonth, year: rYear } = parseLocalDate(r.date)
+            return rMonth === month && rYear === year
+          })
+          .map((r) => r.category)
+          .filter(Boolean)
+      ),
+    ].sort()
+  }, [records, month, year])
 
   /** Transactions for the active month (excluding limit records) */
   const monthTransactions = useMemo(() => {
-    return records.filter((r) => {
-      // Skip limit records (they belong to buckets, not transactions)
-      if (r.name === "" && parseFloat(r.category_limit) > 0) return false
-
-      const { month: rMonth, year: rYear } = parseLocalDate(r.date)
-      const matchMonth = rMonth === month && rYear === year
-      const matchCategory = filterCategory ? r.category === filterCategory : true
-      return matchMonth && matchCategory
-    })
+    return records
+      .filter((r) => {
+        const { month: rMonth, year: rYear } = parseLocalDate(r.date)
+        const isNormalTransaction = r.name !== "" || parseFloat(r.category_limit) === 0
+        return rMonth === month && rYear === year && isNormalTransaction
+      })
+      .filter((r) => (filterCategory ? r.category === filterCategory : true))
   }, [records, month, year, filterCategory])
 
-  /** Group transactions by day (same visual as original) */
-  const groupedByDay = useMemo(() => {
-    const groups: Record<string, CsvRecord[]> = {}
-    monthTransactions.forEach((t) => {
-      const d = new Date(t.date)
-      const label = d.toLocaleDateString("default", { day: "numeric", month: "long", year: "numeric" })
-      if (!groups[label]) groups[label] = []
-      groups[label].push(t)
+  const totalPages = Math.ceil(monthTransactions.length / pageSize)
+  const paginatedTransactions = monthTransactions.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+
+  /** Grouped by date for display */
+  const groupedTransactions = useMemo(() => {
+    const groups: Record<string, Array<CsvRecord> | undefined> = {}
+    paginatedTransactions.forEach((r) => {
+      if (groups[r.date] === undefined) {
+        groups[r.date] = []
+      }
+      groups[r.date]!.push(r)
     })
-    return groups
-  }, [monthTransactions])
+    return Object.entries(groups).sort((a, b) => b[0].localeCompare(a[0])) as Array<[string, Array<CsvRecord>]>
+  }, [paginatedTransactions])
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <ListOrdered className="text-muted-foreground h-5 w-5" />
+            <HugeiconsIcon icon={ReceiptTextIcon} />
             <span>Transactions</span>
           </div>
           <div className="flex items-center gap-2">
-            {/* Category filter dialog */}
+            {/* Category Filter */}
             <Dialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen}>
-              <DialogTrigger asChild>
-                <Button variant={filterCategory ? "secondary" : "outline"}>
-                  {filterCategory ? <FilterX className="h-5 w-5" /> : <Filter className="h-5 w-5" />}
-                </Button>
+              <DialogTrigger>
+                <HugeiconsIcon
+                  icon={filterCategory ? FilterRemoveIcon : FilterIcon}
+                  className="cursor-pointer active:animate-bounce"
+                />
               </DialogTrigger>
-              <DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
+              <DialogContent showCloseButton={false}>
                 <DialogHeader>
                   <DialogTitle className="text-center">Category Filter</DialogTitle>
                   <DialogDescription></DialogDescription>
                 </DialogHeader>
-                <Select onValueChange={setSelectedFilter} value={selectedFilter}>
-                  <SelectTrigger>
+
+                <Select onValueChange={(value) => setSelectedFilter(value!)} value={selectedFilter}>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
-                  <SelectContent className="max-h-60 overflow-y-auto">
+                  <SelectContent>
                     {allCategories.map((cat) => (
                       <SelectItem key={cat} value={cat}>
                         {cat}
@@ -100,63 +123,137 @@ export default function TransactionsCard({ records, month, year, onNavigate, onR
                     ))}
                   </SelectContent>
                 </Select>
-                <div className="flex justify-end space-x-4">
-                  <Button
-                    variant="default"
-                    onClick={() => {
-                      setFilterCategory(selectedFilter)
-                      setFilterDialogOpen(false)
-                    }}
-                  >
-                    Save
-                  </Button>
-                  <Button variant="secondary" onClick={() => setFilterDialogOpen(false)}>
-                    Cancel
-                  </Button>
+
+                <div className="flex gap-2 pt-4">
                   <Button
                     variant="outline"
+                    className="flex-1"
                     onClick={() => {
-                      setFilterCategory(undefined)
                       setSelectedFilter(undefined)
+                      setFilterCategory(undefined)
                       setFilterDialogOpen(false)
                     }}
                   >
-                    Reset
+                    Clear
+                  </Button>
+                  <Button
+                    className="flex-1"
+                    onClick={() => {
+                      if (selectedFilter) {
+                        setFilterCategory(selectedFilter)
+                        setFilterDialogOpen(false)
+                      }
+                    }}
+                  >
+                    Apply
                   </Button>
                 </div>
               </DialogContent>
             </Dialog>
 
             {/* Refresh from file */}
-            <Button variant="outline" className="ml-2" onClick={onRefresh}>
-              <RotateCw className="h-5 w-5" />
-            </Button>
+            <div className="size-2" />
+            <HugeiconsIcon icon={Refresh01Icon} onClick={onRefresh} className="cursor-pointer active:animate-spin" />
           </div>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
+          <div className="size-1" />
           <MonthNavigator month={month} year={year} onNavigate={onNavigate} />
 
           {/* Grouped transactions list */}
-          <div className="space-y-2">
-            {Object.keys(groupedByDay).length === 0 && (
+          <div className="flex flex-col space-y-6">
+            {groupedTransactions.length === 0 && (
               <p className="text-muted-foreground py-8 text-center text-sm italic">No transactions this month.</p>
             )}
-            {Object.entries(groupedByDay).map(([day, txns]) => (
-              <div key={day} className="space-y-2">
-                <h3 className="text-muted-foreground text-sm">
-                  {new Date(day).toLocaleDateString("default", { weekday: "long" })}
+            {groupedTransactions.map(([date, items]) => (
+              <div key={date}>
+                <h3 className="mb-2 text-xs font-semibold tracking-wider text-zinc-500 uppercase">
+                  {(() => {
+                    const { year: y, month: m, day: d } = parseLocalDate(date)
+                    return new Date(y, m - 1, d).toLocaleDateString("default", {
+                      weekday: "short",
+                      month: "short",
+                      day: "numeric",
+                    })
+                  })()}
                 </h3>
-                <ul className="space-y-1">
-                  {txns.map((t, idx) => (
-                    <TransactionItem key={idx} record={t} />
+                <div className="flex flex-col space-y-1">
+                  {items.map((item, idx) => (
+                    <EditTransactionDialog key={`${item.date}-${item.name}-${idx}`} record={item}>
+                      <TransactionItem record={item} />
+                    </EditTransactionDialog>
                   ))}
-                </ul>
+                </div>
               </div>
             ))}
           </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between border-t border-zinc-800 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                Prev
+              </Button>
+
+              <div className="flex items-center gap-1">
+                {(() => {
+                  const pages: Array<number | string> = []
+                  const range = 1 // Number of siblings to show on each side of current page
+
+                  for (let i = 1; i <= totalPages; i++) {
+                    if (
+                      i === 1 || // Always show first
+                      i === totalPages || // Always show last
+                      (i >= currentPage - range && i <= currentPage + range) // Show current and siblings
+                    ) {
+                      pages.push(i)
+                    } else if (pages[pages.length - 1] !== "...") {
+                      pages.push("...")
+                    }
+                  }
+
+                  return pages.map((page, idx) => {
+                    if (page === "...") {
+                      return (
+                        <span key={`ellipsis-${idx}`} className="px-2 text-zinc-500">
+                          ...
+                        </span>
+                      )
+                    }
+                    return (
+                      <Button
+                        key={page}
+                        variant={currentPage === page ? "default" : "ghost"}
+                        className={cn("h-8 w-8 p-0", {
+                          "pointer-events-none bg-zinc-800 text-white": currentPage === page,
+                        })}
+                        onClick={() => setCurrentPage(page as number)}
+                      >
+                        {page}
+                      </Button>
+                    )
+                  })
+                })()}
+              </div>
+
+              <Button
+                variant="outline"
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          )}
         </div>
+        <div className="size-4" />
+        <AddTransactionDialog />
       </CardContent>
     </Card>
   )

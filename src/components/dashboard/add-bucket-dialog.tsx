@@ -1,5 +1,3 @@
-"use client"
-
 /**
  * AddBucketDialog
  *
@@ -11,9 +9,11 @@
  */
 
 import { useState } from "react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { PlusSignCircleFreeIcons } from "@hugeicons/core-free-icons"
+import { BucketFormFields } from "./bucket-form-fields"
+import { TransactionFooter } from "./transaction-footer"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Dialog,
   DialogContent,
@@ -22,41 +22,29 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { PlusCircle } from "lucide-react"
 import { useFileHandle } from "@/components/providers/file-handle-provider"
-import { toRecord, parseLocalDate } from "@/components/dashboard/types"
+import { parseLocalDate, toRecord } from "@/components/dashboard/types"
 
-/** Available months for the picker */
-const MONTHS = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-]
-
-export default function AddBucketDialog() {
+export default function AddBucketDialog({
+  initialMonth,
+  initialYear,
+}: {
+  initialMonth?: number
+  initialYear?: number
+}) {
   const { data, setData } = useFileHandle()
   const [open, setOpen] = useState(false)
 
   const now = new Date()
-  const [month, setMonth] = useState(String(now.getMonth() + 1))
-  const [year, setYear] = useState(String(now.getFullYear()))
+  const [month, setMonth] = useState(String(initialMonth ?? now.getMonth() + 1))
+  const [year, setYear] = useState(String(initialYear ?? now.getFullYear()))
   const [category, setCategory] = useState("")
   const [limit, setLimit] = useState("")
 
   const resetForm = () => {
     const n = new Date()
-    setMonth(String(n.getMonth() + 1))
-    setYear(String(n.getFullYear()))
+    setMonth(String(initialMonth ?? n.getMonth() + 1))
+    setYear(String(initialYear ?? n.getFullYear()))
     setCategory("")
     setLimit("")
   }
@@ -103,76 +91,40 @@ export default function AddBucketDialog() {
         if (!v) resetForm()
       }}
     >
-      <DialogTrigger asChild>
-        <Button>
-          <PlusCircle className="h-5 w-5 opacity-50" />
-          New Budget
+      <DialogTrigger className="w-full">
+        <Button variant="default" size="lg" className="w-full" onClick={() => resetForm()}>
+          <HugeiconsIcon icon={PlusSignCircleFreeIcons} />
+          New Bucket
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent showCloseButton={false}>
         <DialogHeader>
-          <DialogTitle>New Budget Category</DialogTitle>
-          <DialogDescription>Create a new budget category and set its spending limit for this month.</DialogDescription>
+          <DialogTitle>New Bucket</DialogTitle>
+          <DialogDescription>Create a new bucket and set its spending limit for this month.</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-2">
-          {/* Month / Year */}
-          <div className="flex gap-3">
-            <div className="flex-1 space-y-2">
-              <Label>Month</Label>
-              <Select value={month} onValueChange={setMonth}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {MONTHS.map((name, i) => (
-                    <SelectItem key={i} value={String(i + 1)}>
-                      {name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="w-24 space-y-2">
-              <Label htmlFor="bucket-year">Year</Label>
-              <Input id="bucket-year" type="number" value={year} onChange={(e) => setYear(e.target.value)} />
-            </div>
-          </div>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            handleSave()
+          }}
+        >
+          <BucketFormFields
+            month={month}
+            setMonth={setMonth}
+            year={year}
+            setYear={setYear}
+            category={category}
+            setCategory={setCategory}
+            limit={limit}
+            setLimit={setLimit}
+          />
 
-          {/* Category */}
-          <div className="space-y-2">
-            <Label htmlFor="bucket-category">Category Name *</Label>
-            <Input
-              id="bucket-category"
-              placeholder="e.g. Food"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-            />
-          </div>
-
-          {/* Limit */}
-          <div className="space-y-2">
-            <Label htmlFor="bucket-limit">Spending Limit *</Label>
-            <Input
-              id="bucket-limit"
-              type="number"
-              step="0.01"
-              placeholder="500.00"
-              value={limit}
-              onChange={(e) => setLimit(e.target.value)}
-            />
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex justify-end gap-3 pt-2">
-          <Button variant="outline" onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleSave} disabled={!category.trim() || !limit.trim()}>
-            Save
-          </Button>
-        </div>
+          <TransactionFooter
+            onCancel={() => setOpen(false)}
+            isSaveDisabled={!category.trim() || !limit.trim() || !month.trim() || !year.trim()}
+          />
+        </form>
       </DialogContent>
     </Dialog>
   )

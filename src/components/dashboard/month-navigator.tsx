@@ -5,8 +5,8 @@
  * Used in both the Transactions and Buckets cards.
  */
 
-import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { CircleArrowLeft02Icon, CircleArrowRight02Icon } from "@hugeicons/core-free-icons"
 
 interface MonthNavigatorProps {
   month: number
@@ -22,13 +22,9 @@ export default function MonthNavigator({ month, year, onNavigate }: MonthNavigat
 
   return (
     <div className="flex items-center justify-between">
-      <Button variant="link" className="hover:bg-muted rounded-full" onClick={() => onNavigate(-1)}>
-        <ChevronLeft className="text-muted-foreground" />
-      </Button>
+      <HugeiconsIcon icon={CircleArrowLeft02Icon} size={32} onClick={() => onNavigate(-1)} />
       <h2 className="text-lg font-medium">{label}</h2>
-      <Button variant="link" className="hover:bg-muted rounded-full" onClick={() => onNavigate(1)}>
-        <ChevronRight className="text-muted-foreground" />
-      </Button>
+      <HugeiconsIcon icon={CircleArrowRight02Icon} size={32} onClick={() => onNavigate(1)} />
     </div>
   )
 }

@@ -1,16 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router"
 
-import { useState, useMemo } from "react"
+import { useMemo, useState } from "react"
 import { useFileHandle } from "@/components/providers/file-handle-provider"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Settings } from "lucide-react"
-import { Link } from "@tanstack/react-router"
 import EmptyState from "@/components/dashboard/empty-state"
 import TransactionsCard from "@/components/dashboard/transactions-card"
 import BucketsCard from "@/components/dashboard/buckets-card"
-import AddTransactionDialog from "@/components/dashboard/add-transaction-dialog"
-import AddBucketDialog from "@/components/dashboard/add-bucket-dialog"
 import { toRecord } from "@/components/dashboard/types"
 
 export const Route = createFileRoute("/")({
@@ -52,14 +46,6 @@ function HomePage() {
 
   return (
     <div className="flex flex-col items-center space-y-4 py-4">
-      {/* Quick Actions */}
-      <Card className="w-full max-w-md">
-        <CardContent className="flex items-center justify-center gap-4 p-4">
-          <AddTransactionDialog />
-          <AddBucketDialog />
-        </CardContent>
-      </Card>
-
       {/* Transactions */}
       <TransactionsCard
         records={records}
@@ -77,20 +63,6 @@ function HomePage() {
         onNavigate={navigateMonth}
         onRefresh={() => syncWithFile()}
       />
-
-      {/* Bottom actions */}
-      <Card className="w-full max-w-md">
-        <CardContent className="flex flex-col items-center space-y-4 p-4">
-          <div className="flex gap-8">
-            <Button asChild>
-              <Link to="/settings">
-                <Settings className="h-5 w-5 opacity-50" />
-                Settings
-              </Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   )
 }

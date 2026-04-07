@@ -9,17 +9,20 @@
  */
 
 import { useMemo } from "react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { Folder02Icon, Refresh01Icon } from "@hugeicons/core-free-icons"
+import MonthNavigator from "./month-navigator"
+import { parseLocalDate, pct } from "./types"
+import EditBucketDialog from "./edit-bucket-dialog"
+import AddBucketDialog from "./add-bucket-dialog"
+import CopyBuckets from "./copy-buckets"
+import type { BucketView, CsvRecord } from "./types"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
-import { PaintBucket, RotateCw } from "lucide-react"
-import MonthNavigator from "./month-navigator"
-import { CsvRecord, BucketView, pct, parseLocalDate } from "./types"
-import EditBucketDialog from "./edit-bucket-dialog"
 
 interface BucketsCardProps {
-  records: CsvRecord[]
+  records: Array<CsvRecord>
   month: number
   year: number
   onNavigate: (delta: number) => void
@@ -70,38 +73,39 @@ export default function BucketsCard({ records, month, year, onNavigate, onRefres
   const totalSpent = monthBuckets.reduce((s, b) => s + b.spent, 0)
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <PaintBucket className="text-muted-foreground h-5 w-5" />
+            <HugeiconsIcon icon={Folder02Icon} />
             <span>Buckets</span>
           </div>
-          <Button variant="outline" className="ml-2" onClick={onRefresh}>
-            <RotateCw className="h-5 w-5" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <HugeiconsIcon icon={Refresh01Icon} onClick={onRefresh} className="cursor-pointer active:animate-spin" />
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
+          <div className="size-1" />
           <MonthNavigator month={month} year={year} onNavigate={onNavigate} />
 
-          <ul>
+          <ul className="flex flex-col space-y-1">
             {/* ── Total row ────────────────────────────────────────────────── */}
-            <li className="group flex items-center justify-between rounded-lg px-4 py-3">
-              <div className="flex h-12 w-full items-center justify-between gap-2">
-                <div className="h-full w-20 align-top">
-                  <h3 className="text-primary truncate">Total</h3>
+            <li className="flex items-center rounded-lg py-2 pr-4 pl-2">
+              <div className="flex w-full shrink-0 items-center gap-2">
+                <div className="w-[20%] shrink-0 text-left">
+                  <h3 className="text-primary truncate font-medium">Total</h3>
                 </div>
-                <div className="h-full flex-1">
-                  <Progress value={pct(totalSpent, totalLimit)} max={1} className="h-4" />
-                  <div className="text-muted-foreground mt-1 flex justify-between text-sm">
-                    <span>{pct(totalSpent, totalLimit).toFixed(1)}%</span>
-                    <span>${totalLimit.toFixed(1)}</span>
+                <div className="w-[59.5%] shrink-0">
+                  <Progress value={pct(totalSpent, totalLimit) / 100} max={1} className="h-2" />
+                  <div className="text-muted-foreground mt-1 flex justify-between tabular-nums">
+                    <span>{pct(totalSpent, totalLimit).toFixed(0)}%</span>
+                    <span>${totalLimit.toFixed(0)}</span>
                   </div>
                 </div>
-                <div className="h-full w-20 text-right align-top">
-                  <span className="text-muted-foreground">${Math.abs(totalSpent).toFixed(2)}</span>
+                <div className="w-[19%] shrink-0 text-right">
+                  <span className="text-muted-foreground font-medium">${Math.abs(totalSpent).toFixed(2)}</span>
                 </div>
               </div>
             </li>
@@ -109,21 +113,21 @@ export default function BucketsCard({ records, month, year, onNavigate, onRefres
             {/* ── Individual category buckets ───────────────────────────────── */}
             {monthBuckets.map((bucket) => (
               <EditBucketDialog key={bucket.category} bucket={bucket}>
-                <li className="group hover:bg-muted/50 flex cursor-pointer items-center justify-between rounded-lg px-4 py-3 transition-colors">
-                  <div className="flex h-12 w-full items-center justify-between gap-2">
-                    <div className="h-full w-20 align-top">
-                      <h3 className="text-primary truncate">{bucket.category}</h3>
+                <li className="hover:bg-muted/50 cursor-pointer rounded-lg py-2 pr-4 pl-2 transition-colors">
+                  <div className="flex w-full shrink-0 items-center gap-2">
+                    <div className="w-[20%] shrink-0 text-left">
+                      <h3 className="text-primary truncate font-medium">{bucket.category}</h3>
                     </div>
-                    <div className="h-full flex-1">
-                      <Progress value={pct(bucket.spent, bucket.limit)} max={1} className="h-4" />
-                      <div className="text-muted-foreground mt-1 flex justify-between text-sm">
-                        <span>{pct(bucket.spent, bucket.limit).toFixed(1)}%</span>
-                        <span>${bucket.limit.toFixed(2)}</span>
+                    <div className="w-[59.5%] shrink-0">
+                      <Progress value={pct(bucket.spent, bucket.limit) / 100} max={1} className="h-2" />
+                      <div className="text-muted-foreground mt-1 flex justify-between tabular-nums">
+                        <span>{pct(bucket.spent, bucket.limit).toFixed(0)}%</span>
+                        <span>${bucket.limit.toFixed(0)}</span>
                       </div>
                     </div>
-                    <div className="h-full w-20 text-right align-top">
+                    <div className="w-[19%] shrink-0 text-right">
                       <span
-                        className={cn("text-muted-foreground", {
+                        className={cn("text-muted-foreground font-medium", {
                           "text-red-500": bucket.spent > bucket.limit,
                         })}
                       >
@@ -139,6 +143,11 @@ export default function BucketsCard({ records, month, year, onNavigate, onRefres
               <li className="text-muted-foreground py-8 text-center text-sm italic">No buckets this month.</li>
             )}
           </ul>
+        </div>
+        <div className="size-4" />
+        <div className="flex w-full flex-col items-center gap-4">
+          <CopyBuckets month={month} year={year} />
+          <AddBucketDialog initialMonth={month} initialYear={year} />
         </div>
       </CardContent>
     </Card>

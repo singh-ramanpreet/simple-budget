@@ -1,5 +1,3 @@
-"use client"
-
 /**
  * FileHandleProvider
  *
@@ -10,14 +8,14 @@
  *    immediate visibility on page load.
  */
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react"
+import React, { createContext, useCallback, useContext, useEffect, useState } from "react"
 import {
-  getFileHandle,
-  setFileHandle,
-  verifyPermission,
   clearFileHandle as clearStoredHandle,
+  getFileHandle,
   getLocalData,
+  setFileHandle,
   setLocalData,
+  verifyPermission,
 } from "@/lib/file-storage"
 
 interface FileHandleContextType {
@@ -35,10 +33,10 @@ interface FileHandleContextType {
   clearHandle: () => Promise<void>
 
   /** Global shared state: Unified list of all records (Denormalized) */
-  data: Record<string, unknown>[]
+  data: Array<Record<string, unknown>>
 
   /** Updates the shared state and persists changes back to the CSV in the background */
-  setData: (newData: Record<string, unknown>[]) => Promise<void>
+  setData: (newData: Array<Record<string, unknown>>) => Promise<void>
 
   /** Forces a refresh from the physical CSV file */
   syncWithFile: () => Promise<void>
@@ -51,7 +49,7 @@ export function FileHandleProvider({ children }: { children: React.ReactNode }) 
   const [hasPermission, setHasPermission] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
-  const [data, setDataState] = useState<Record<string, unknown>[]>([])
+  const [data, setDataState] = useState<Array<Record<string, unknown>>>([])
 
   /**
    * Parses CSV content into an array of records and caches them in IDB.
@@ -124,7 +122,7 @@ export function FileHandleProvider({ children }: { children: React.ReactNode }) 
           await parseAndCache(handle)
         } else {
           const cachedData = await getLocalData<Record<string, unknown>>("records")
-          if (!cancelled) setDataState(cachedData || [])
+          setDataState(cachedData)
         }
       } catch (err) {
         console.error("Initialization failed:", err)
@@ -146,16 +144,25 @@ export function FileHandleProvider({ children }: { children: React.ReactNode }) 
   const pickFile = useCallback(async () => {
     try {
       const [handle] = await window.showOpenFilePicker({
-        types: [{ description: "CSV Data File", accept: { "text/csv": [".csv"] } }],
+        types: [
+          {
+            description: "CSV Data File",
+            accept: {
+              "text/plain": [".csv"],
+              "text/csv": [".csv"],
+              "application/csv": [".csv"],
+              "application/vnd.ms-excel": [".csv"],
+            },
+          },
+        ],
+        excludeAcceptAllOption: true,
         multiple: false,
       })
 
-      if (handle) {
-        await setFileHandle(handle)
-        setFileHandleState(handle)
-        setHasPermission(true)
-        await parseAndCache(handle)
-      }
+      await setFileHandle(handle)
+      setFileHandleState(handle)
+      setHasPermission(true)
+      await parseAndCache(handle)
     } catch (err) {
       if ((err as Error).name !== "AbortError") console.error("Pick file failed:", err)
     }
@@ -192,9 +199,16 @@ export function FileHandleProvider({ children }: { children: React.ReactNode }) 
    * @param newData The new list of records to save.
    */
   const setData = useCallback(
-    async (newData: Record<string, unknown>[]) => {
-      setDataState(newData)
-      await setLocalData("records", newData)
+    async (newData: Array<Record<string, unknown>>) => {
+      // Always sort by date (YYYY-MM-DD) before saving
+      const sortedData = [...newData].sort((a, b) => {
+        const dateA = String(a.date || "")
+        const dateB = String(b.date || "")
+        return dateA.localeCompare(dateB)
+      })
+
+      setDataState(sortedData)
+      await setLocalData("records", sortedData)
 
       // Background sync to physical CSV if we have write access
       if (fileHandle && hasPermission) {

@@ -1,7 +1,7 @@
 interface FileSystemFileHandle extends FileSystemHandle {
   readonly kind: "file"
-  getFile(): Promise<File>
-  createWritable(options?: FileSystemCreateWritableOptions): Promise<FileSystemWritableFileStream>
+  getFile: () => Promise<File>
+  createWritable: (options?: FileSystemCreateWritableOptions) => Promise<FileSystemWritableFileStream>
 }
 
 /**
@@ -9,11 +9,11 @@ interface FileSystemFileHandle extends FileSystemHandle {
  */
 interface FileSystemDirectoryHandle extends FileSystemHandle {
   readonly kind: "directory"
-  getDirectoryHandle(name: string, options?: FileSystemGetDirectoryOptions): Promise<FileSystemDirectoryHandle>
-  getFileHandle(name: string, options?: FileSystemGetFileOptions): Promise<FileSystemFileHandle>
-  removeEntry(name: string, options?: FileSystemRemoveOptions): Promise<void>
-  resolve(possibleDescendant: FileSystemHandle): Promise<string[] | null>
-  values(): AsyncIterableIterator<FileSystemFileHandle | FileSystemDirectoryHandle>
+  getDirectoryHandle: (name: string, options?: FileSystemGetDirectoryOptions) => Promise<FileSystemDirectoryHandle>
+  getFileHandle: (name: string, options?: FileSystemGetFileOptions) => Promise<FileSystemFileHandle>
+  removeEntry: (name: string, options?: FileSystemRemoveOptions) => Promise<void>
+  resolve: (possibleDescendant: FileSystemHandle) => Promise<Array<string> | null>
+  values: () => AsyncIterableIterator<FileSystemFileHandle | FileSystemDirectoryHandle>
 }
 
 /**
@@ -22,9 +22,9 @@ interface FileSystemDirectoryHandle extends FileSystemHandle {
 interface FileSystemHandle {
   readonly kind: "file" | "directory"
   readonly name: string
-  isSameEntry(other: FileSystemHandle): Promise<boolean>
-  queryPermission(descriptor?: FileSystemHandlePermissionDescriptor): Promise<PermissionState>
-  requestPermission(descriptor?: FileSystemHandlePermissionDescriptor): Promise<PermissionState>
+  isSameEntry: (other: FileSystemHandle) => Promise<boolean>
+  queryPermission: (descriptor?: FileSystemHandlePermissionDescriptor) => Promise<PermissionState>
+  requestPermission: (descriptor?: FileSystemHandlePermissionDescriptor) => Promise<PermissionState>
 }
 
 /**
@@ -39,7 +39,7 @@ interface FileSystemHandlePermissionDescriptor {
  */
 interface FilePickerAcceptType {
   description?: string
-  accept: Record<string, string[]>
+  accept: Record<string, Array<string>>
 }
 
 /**
@@ -48,25 +48,25 @@ interface FilePickerAcceptType {
 interface OpenFilePickerOptions {
   multiple?: boolean
   excludeAcceptAllOption?: boolean
-  types?: FilePickerAcceptType[]
+  types?: Array<FilePickerAcceptType>
 }
 
 /**
  * Window extension to include the File System Access API entry points.
  */
 interface Window {
-  showOpenFilePicker(options?: OpenFilePickerOptions): Promise<FileSystemFileHandle[]>
-  showSaveFilePicker(options?: unknown): Promise<FileSystemFileHandle>
-  showDirectoryPicker(options?: unknown): Promise<FileSystemDirectoryHandle>
+  showOpenFilePicker: (options?: OpenFilePickerOptions) => Promise<Array<FileSystemFileHandle>>
+  showSaveFilePicker: (options?: unknown) => Promise<FileSystemFileHandle>
+  showDirectoryPicker: (options?: unknown) => Promise<FileSystemDirectoryHandle>
 }
 
 /**
  * A writable stream for local files.
  */
 interface FileSystemWritableFileStream extends WritableStream {
-  write(data: BufferSource | Blob | string | FileSystemWriteChunkType): Promise<void>
-  seek(position: number): Promise<void>
-  truncate(size: number): Promise<void>
+  write: (data: BufferSource | Blob | string | FileSystemWriteChunkType) => Promise<void>
+  seek: (position: number) => Promise<void>
+  truncate: (size: number) => Promise<void>
 }
 
 type FileSystemWriteChunkType =

@@ -1,21 +1,8 @@
-import { Outlet, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router"
+import { HeadContent, Outlet, Scripts, createRootRoute } from "@tanstack/react-router"
 
-import appCss from "./globals.css?url"
+import appCss from "@/globals.css?url"
 import { FileHandleProvider } from "@/components/providers/file-handle-provider"
-
-// export default function RootLayout({
-//   children,
-// }: Readonly<{
-//   children: React.ReactNode
-// }>) {
-//   return (
-//     <html lang="en">
-//       <body className={`${geistSans.variable} ${geistMono.variable} dark antialiased`}>
-//         <FileHandleProvider>{children}</FileHandleProvider>
-//       </body>
-//     </html>
-//   )
-// }
+import { NavBar } from "@/components/layout/nav-bar"
 
 export const Route = createRootRoute({
   head: () => ({
@@ -35,9 +22,12 @@ function RootLayout() {
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body className="dark">
         <FileHandleProvider>
-          <Outlet />
+          <div className="mx-auto max-w-2xl p-2 pb-32">
+            <Outlet />
+          </div>
+          <NavBar />
         </FileHandleProvider>
         <Scripts />
       </body>
