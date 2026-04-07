@@ -20,6 +20,23 @@ export const Route = createRootRoute({
       { rel: "icon", href: "/favicon.ico" },
       { rel: "apple-touch-icon", href: "/apple-icon.png" },
     ],
+    scripts: [
+      {
+        children: `
+          if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+              navigator.serviceWorker.register('/sw.js', { scope: '/' })
+                .then(registration => {
+                  console.log('SW registered: ', registration);
+                })
+                .catch(registrationError => {
+                  console.log('SW registration failed: ', registrationError);
+                });
+            });
+          }
+        `,
+      },
+    ],
   }),
   component: RootLayout,
 })
