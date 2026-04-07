@@ -42,7 +42,7 @@ export function FileHandleManager() {
             <HugeiconsIcon icon={FileCodeIcon} />
           </div>
           <div className="overflow-hidden">
-            <div className="max-w-[140px] truncate text-sm font-medium">{fileHandle.name}</div>
+            <div className="truncate text-sm font-medium">{fileHandle.name}</div>
             <div className="text-muted-foreground mt-0.5 flex items-center gap-1 text-[10px]">
               {hasPermission ? (
                 <div className="flex items-center gap-1 text-center text-xs font-medium text-emerald-500">

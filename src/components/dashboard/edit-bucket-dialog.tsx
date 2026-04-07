@@ -92,7 +92,7 @@ export default function EditBucketDialog({ bucket, children }: EditBucketDialogP
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Budget Bucket</DialogTitle>
           <DialogDescription>

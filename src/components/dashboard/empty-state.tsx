@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 
 export default function EmptyState() {
   return (
-    <div className="mx-auto flex max-w-md flex-col items-center justify-center space-y-6 px-4 pt-20 text-center">
+    <div className="mx-auto flex w-full flex-col items-center justify-center space-y-6 px-4 pt-20 text-center">
       <div className="bg-primary/5 text-primary border-primary/10 rounded-full border p-6 shadow-inner">
         <HugeiconsIcon icon={Database02Icon} />
       </div>

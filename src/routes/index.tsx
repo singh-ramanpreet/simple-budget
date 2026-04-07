@@ -40,7 +40,7 @@ function HomePage() {
   if (!fileHandle || !hasPermission) {
     return (
       <div className="flex flex-col items-center space-y-4 pt-5">
-        <Card className="border-primary/20 shadow-primary/5 from-background to-secondary/20 relative w-full max-w-md overflow-hidden bg-linear-to-br shadow-lg">
+        <Card className="border-primary/20 shadow-primary/5 from-background to-secondary/20 relative w-full overflow-hidden bg-linear-to-br shadow-lg">
           <CardHeader>
             <div className="flex items-center gap-2">
               <span>Welcome to Simple Budget</span>
