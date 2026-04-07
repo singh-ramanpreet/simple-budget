@@ -95,7 +95,7 @@ export default function BucketsCard({ records, month, year, onNavigate }: Bucket
                   <h3 className="text-primary truncate font-medium">Total</h3>
                 </div>
                 <div className="w-[48.5%] shrink-0">
-                  <Progress value={pct(totalSpent, totalLimit) / 100} max={1} className="h-2" />
+                  <Progress value={pct(totalSpent, totalLimit) / 100} max={1} className="h-3" />
                   <div className="text-muted-foreground mt-1 flex justify-between tabular-nums">
                     <span>{pct(totalSpent, totalLimit).toFixed(0)}%</span>
                     <span>${totalLimit.toFixed(0)}</span>
@@ -116,7 +116,7 @@ export default function BucketsCard({ records, month, year, onNavigate }: Bucket
                       <h3 className="text-primary truncate font-medium">{bucket.category}</h3>
                     </div>
                     <div className="w-[48.5%] shrink-0">
-                      <Progress value={pct(bucket.spent, bucket.limit) / 100} max={1} className="h-2" />
+                      <Progress value={pct(bucket.spent, bucket.limit) / 100} max={1} className="h-3" />
                       <div className="text-muted-foreground mt-1 flex justify-between tabular-nums">
                         <span>{pct(bucket.spent, bucket.limit).toFixed(0)}%</span>
                         <span>${bucket.limit.toFixed(0)}</span>
