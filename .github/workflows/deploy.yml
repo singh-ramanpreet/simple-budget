@@ -13,6 +13,9 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,8 +32,6 @@ jobs:
         run: bun run build
 
       - name: Create 404.html for SPA routing
-        # Nitro/TanStack Start outputs to .output/public
-        # Copying index.html to 404.html allows GH Pages to handle direct deep link refreshes
         run: cp .output/public/index.html .output/public/404.html
 
       - name: Setup Pages
