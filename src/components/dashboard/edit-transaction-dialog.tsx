@@ -117,8 +117,7 @@ export default function EditTransactionDialog({ record, children }: EditTransact
 
   const handleCopy = () => {
     const today = new Date()
-    const isSameMonth =
-      date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear()
+    const isSameMonth = date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear()
 
     const detail = {
       name: name.trim(),

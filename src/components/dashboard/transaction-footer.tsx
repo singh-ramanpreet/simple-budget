@@ -23,12 +23,7 @@ export function TransactionFooter({
   return (
     <div className="mt-6 flex items-center justify-between gap-3 border-t pt-6">
       {onDelete ? (
-        <Button
-          variant="destructive"
-          size={deleteLabel ? "default" : "icon"}
-          onClick={onDelete}
-          className="shrink-0"
-        >
+        <Button variant="destructive" size={deleteLabel ? "default" : "icon"} onClick={onDelete} className="shrink-0">
           <HugeiconsIcon icon={Delete02Icon} className={cn("h-5 w-5", deleteLabel && "mr-2")} />
           {deleteLabel}
         </Button>
