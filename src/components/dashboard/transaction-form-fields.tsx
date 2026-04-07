@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { format } from "date-fns"
-import { CalendarIcon } from "lucide-react"
+import { CalendarFreeIcons } from "@hugeicons/core-free-icons"
+import { HugeiconsIcon } from "@hugeicons/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -50,7 +51,7 @@ export function TransactionFormFields({
       <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
         <PopoverTrigger render={<Button variant="outline" className="w-full justify-between text-left font-normal" />}>
           {format(date, "PPP")}
-          <CalendarIcon className="h-4 w-4 opacity-50" />
+          <HugeiconsIcon icon={CalendarFreeIcons} />
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
           <Calendar

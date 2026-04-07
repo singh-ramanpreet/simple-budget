@@ -91,17 +91,17 @@ export default function BucketsCard({ records, month, year, onNavigate }: Bucket
             {/* ── Total row ────────────────────────────────────────────────── */}
             <li className="flex items-center rounded-lg py-2 pr-4 pl-2">
               <div className="flex w-full shrink-0 items-center gap-2">
-                <div className="w-[20%] shrink-0 text-left">
+                <div className="w-[25%] shrink-0 text-left">
                   <h3 className="text-primary truncate font-medium">Total</h3>
                 </div>
-                <div className="w-[59.5%] shrink-0">
+                <div className="w-[48.5%] shrink-0">
                   <Progress value={pct(totalSpent, totalLimit) / 100} max={1} className="h-2" />
                   <div className="text-muted-foreground mt-1 flex justify-between tabular-nums">
                     <span>{pct(totalSpent, totalLimit).toFixed(0)}%</span>
                     <span>${totalLimit.toFixed(0)}</span>
                   </div>
                 </div>
-                <div className="w-[19%] shrink-0 text-right">
+                <div className="w-[25%] shrink-0 text-right">
                   <span className="text-muted-foreground font-medium">${Math.abs(totalSpent).toFixed(2)}</span>
                 </div>
               </div>
@@ -112,17 +112,17 @@ export default function BucketsCard({ records, month, year, onNavigate }: Bucket
               <EditBucketDialog key={bucket.category} bucket={bucket}>
                 <li className="hover:bg-muted/50 cursor-pointer rounded-lg py-2 pr-4 pl-2 transition-colors">
                   <div className="flex w-full shrink-0 items-center gap-2">
-                    <div className="w-[20%] shrink-0 text-left">
+                    <div className="w-[25%] shrink-0 text-left">
                       <h3 className="text-primary truncate font-medium">{bucket.category}</h3>
                     </div>
-                    <div className="w-[59.5%] shrink-0">
+                    <div className="w-[48.5%] shrink-0">
                       <Progress value={pct(bucket.spent, bucket.limit) / 100} max={1} className="h-2" />
                       <div className="text-muted-foreground mt-1 flex justify-between tabular-nums">
                         <span>{pct(bucket.spent, bucket.limit).toFixed(0)}%</span>
                         <span>${bucket.limit.toFixed(0)}</span>
                       </div>
                     </div>
-                    <div className="w-[19%] shrink-0 text-right">
+                    <div className="w-[25%] shrink-0 text-right">
                       <span
                         className={cn("text-muted-foreground font-medium", {
                           "text-red-500": bucket.spent > bucket.limit,

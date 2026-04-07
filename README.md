@@ -1,115 +1,83 @@
-# Simple Budget
+# Simple Budget (v3.0)
 
-A small, opinionated self-hosted budgeting app built with Next.js, Drizzle ORM, Tailwind CSS and React.
+A local-first, private, and minimal budgeting application that stores all your data in a single CSV file on your device. No cloud, no database servers, and no trackers.
 
-![Screen Recording GIF](doc/images/ScreenRecording2025-11-22.gif)
+<p align="center">
+  <img src="doc/images/Screenshot_1.png" width="30%" />
+  <img src="doc/images/Screenshot_2.png" width="30%" />
+  <img src="doc/images/Screenshot_3.png" width="30%" />
+</p>
 
-## Summary
+## Why Local-First?
 
-Simple Budget is a minimal personal finance web app that demonstrates a modern full-stack Next.js
-setup including authentication, database migrations with Drizzle, and a responsive UI built with
-Tailwind CSS and Radix UI primitives. The project is intended as a starter / reference for small
-projects where you want a simple but complete budgeting experience.
+- **Data Ownership**: You choose a CSV file on your device. The app reads and writes directly to it using the [File System Access API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_Access_API).
+  - _Note: This is a browser API and may not work in all browsers._
+- **Privacy by Design**: Your data never leaves your browser. There is no backend, no telemetry, and no accounts.
+- **Portability**: Your budget is just a CSV file. You can open it in Excel, Google Sheets, or any text editor at any time.
 
 ## Features
 
-- Sign up / Sign in flows (auth handled with `better-auth` integration)
-- Create, edit and list buckets (budget categories)
-- Add, edit and filter transactions
-- Simple charts and visualizations (Recharts)
-- Session management and profile settings
-- Database migrations and studio via `drizzle-kit`
+- **Direct File Sync**: Native browser integration to save changes directly to your local file.
+- **Interactive Dashboard**: Track spending vs. budget limits with real-time progress bars.
+- **Smart Categorization**: Group transactions into "Buckets" to monitor your monthly goals.
+- **Autocomplete Entry**: Fast data entry with autocomplete for names and notes based on your history.
+- **IndexedDB Caching**: Immediate UI updates and persistence across refreshes, even before you re-grant file permissions.
+- **Minimalist Aesthetic**: A premium, dark-mode focused UI built with Tailwind CSS and HugeIcons.
 
-## Tech Stack
+## Getting Started
 
-- Framework: `Next.js`
-- Styling: `Tailwind CSS`
-- ORM / Migrations: `drizzle-orm` + `drizzle-kit`
-- Auth: `better-auth` (project-specific integration)
-- Language: `TypeScript`
+### 1. Launch the App
 
-## Deployment
+Visit the hosted version or run it locally (see below).
 
-The app can be deployed to any platform that supports docker compose.
-`Makefile` provides commands to build, run, stop and migrate database.
-Example deployment on a server:
+### 2. Connect Your Data
 
-For first time setup, create a `.env` file with production settings (see `.env.sample` for reference). And run migrations:
+- Go to the **Settings** page.
+- Choose **"Create New"** to initialize a fresh `budget.csv` file on your device.
+- Or choose **"Pick CSV"** to connect an existing file.
 
-```bash
-make migrate-production
-```
+### 3. Grant Permissions
 
-Then run:
+Because of browser security, you will be prompted to "Grant Access" to your file when you first open the app or after a full page refresh. This ensures only you can modify your data.
 
-```bash
-git clone
-cd simple-budget
-# Edit .env file with your settings
-make build-production
-make up-production
-```
+## Data Format
 
-Follow the Sign Up link to create the first user.
+Simple Budget uses a flat CSV structure. All transactions and budget limits are stored in the same file:
+
+| date       | name | amount | category  | category_limit | notes        |
+| :--------- | :--- | :----- | :-------- | :------------- | :----------- |
+| 2026-04-01 | Rent | 1200   | Housing   | 0              | Monthly rent |
+| 2026-04-01 |      | 0      | Groceries | 500            |              |
+
+- **Transactions**: Have a `name` and `amount`. `category_limit` is `0`.
+- **Budget Limits**: Have an empty `name`, `amount` of `0`, and a `category_limit` > 0. These define your budget for a specific category in a given month.
 
 ## Local Development
 
-Use VS Code with Dev Containers. Reopen the project folder in the container to get started.
+Simple Budget is built with **React**, **Vite**, and **Tailwind CSS**.
 
-Install dependencies:
+### Prerequisites
+
+- [Bun](https://bun.sh/) (Recommended) or Node.js
+
+### Setup
 
 ```bash
+# Install dependencies
 bun install
+
+# Run development server
+bun run dev
 ```
 
-Create the database file locally
+## Migration from v2 (SQLite)
+
+If you have a `data.db` from a previous version, use the provided migration script:
 
 ```bash
-bun run db:push
+python3 migrate_to_csv.py data.db > budget.csv
 ```
-
-Run the development server:
-
-```bash
-bun dev
-```
-
-Build for production to test the production build:
-
-```bash
-bun run build
-bun start
-```
-
-Lint and format:
-
-```bash
-bun run lint
-bun run format
-```
-
-## Database
-
-This project uses `drizzle-kit` for migrations. Available npm scripts in `package.json`:
-
-- `bun run db:push` — push schema to the database
-- `bun run db:generate` — generate migration files
-- `bun run db:migrate` — run migrations
-- `bun run db:studio` — open Drizzle Studio
-
-Configure your database connection via environment variables (see `.env.sample`).
-
-## Environment
-
-Create a `.env` (or set env vars) with values required by the app, for example:
-
-```
-DATABASE_URL=postgresql://user:pass@localhost:5432/simple_budget
-NEXTAUTH_URL=http://localhost:3000
-```
-
-Adjust keys to match the project's `lib/auth` and `drizzle.config.ts` expectations.
-
-See `.env.sample` for reference.
 
 ---
+
+[MIT License](LICENSE)
