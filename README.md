@@ -4,11 +4,8 @@ A local-first, private, and minimal budgeting application that stores all your d
 
 Check it out here: https://simple-budget.singhramanpreet.com/
 
-<p align="center">
-  <img src="doc/images/Screenshot_1.png" width="30%" />
-  <img src="doc/images/Screenshot_2.png" width="30%" />
-  <img src="doc/images/Screenshot_3.png" width="30%" />
-</p>
+![Screenshot_1](doc/images/Screenshot_1.webp)
+![Screenshot_2](doc/images/Screenshot_2.webp)
 
 ## Why Local-First?
 
