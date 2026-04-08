@@ -1,4 +1,3 @@
-"use client"
 /* shadcn component disable lint */
 /* eslint-disable no-shadow */
 
