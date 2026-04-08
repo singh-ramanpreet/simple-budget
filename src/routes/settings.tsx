@@ -7,7 +7,7 @@ import { useTheme } from "@/components/providers/theme-provider"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
-export const Route = createFileRoute("/settings/")({
+export const Route = createFileRoute("/settings")({
   component: SettingsPage,
 })
 

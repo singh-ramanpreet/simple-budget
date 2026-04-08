@@ -51,6 +51,7 @@ export function BucketFormFields({
             Month *
           </Label>
           <Select
+            items={MONTHS.map((m) => ({ label: m, value: m }))}
             value={month ? MONTHS[parseInt(month, 10) - 1] : ""}
             onValueChange={(v) => {
               const index = MONTHS.indexOf(v!)

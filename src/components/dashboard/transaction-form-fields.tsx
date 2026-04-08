@@ -105,7 +105,11 @@ export function TransactionFormFields({
       <Label htmlFor="txn-category" className="text-right font-medium">
         Category *
       </Label>
-      <Select value={category} onValueChange={(value) => setCategory(value || "")}>
+      <Select
+        items={existingCategories.map((cat) => ({ label: cat, value: cat }))}
+        value={category}
+        onValueChange={(value) => setCategory(value || "")}
+      >
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Category" />
         </SelectTrigger>
@@ -117,7 +121,9 @@ export function TransactionFormFields({
               </SelectItem>
             ))
           ) : (
-            <div className="text-muted-foreground p-2 text-sm">No categories found</div>
+            <div className="text-muted-foreground p-2 text-sm">
+              No categories this month. <br /> Create a bucket first in this month.
+            </div>
           )}
         </SelectContent>
       </Select>

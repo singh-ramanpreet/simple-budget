@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { Home01Icon, Settings01Icon } from "@hugeicons/core-free-icons"
+import { Chart01Icon, Home01Icon, Settings01Icon } from "@hugeicons/core-free-icons"
 
 export function NavBar() {
   return (
@@ -12,6 +12,15 @@ export function NavBar() {
       >
         <HugeiconsIcon icon={Home01Icon} size={24} />
         <span className="text-[10px] font-medium tracking-wider uppercase">Home</span>
+      </Link>
+
+      <Link
+        to="/charts"
+        className="text-muted-foreground flex flex-col items-center gap-1 transition-colors"
+        activeProps={{ className: "!text-foreground" }}
+      >
+        <HugeiconsIcon icon={Chart01Icon} size={24} />
+        <span className="text-[10px] font-medium tracking-wider uppercase">Charts</span>
       </Link>
 
       <Link

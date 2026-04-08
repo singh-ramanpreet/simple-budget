@@ -54,6 +54,7 @@ export default function MonthNavigator({ month, year, onNavigate, onJump }: Mont
 
       <div className="flex items-center gap-2">
         <Select
+          items={MONTHS.map((m) => ({ label: m, value: m }))}
           value={MONTHS[month - 1]}
           onValueChange={(v) => {
             const index = MONTHS.indexOf(v!)

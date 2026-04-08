@@ -115,7 +115,11 @@ export default function TransactionsCard({ records, month, year, onNavigate, onJ
                   <DialogDescription></DialogDescription>
                 </DialogHeader>
 
-                <Select onValueChange={(value) => setSelectedFilter(value!)} value={selectedFilter}>
+                <Select
+                  items={allCategories.map((cat) => ({ label: cat, value: cat }))}
+                  onValueChange={(value) => setSelectedFilter(value!)}
+                  value={selectedFilter}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
