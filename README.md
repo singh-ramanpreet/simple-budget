@@ -2,7 +2,7 @@
 
 A local-first, private, and minimal budgeting application that stores all your data in a single CSV file on your device. No cloud, no database servers, and no trackers.
 
-Check it out here: https://budget.singhramanpreet.com/
+Check it out here: https://simple-budget.singhramanpreet.com/
 
 <p align="center">
   <img src="doc/images/Screenshot_1.png" width="30%" />

@@ -34,7 +34,6 @@ function SettingsPage() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between gap-4">
-            <span className="text-sm font-medium">Theme</span>
             <div className="bg-muted flex flex-1 items-center gap-1 rounded-lg border p-1">
               <Button
                 variant={theme === "light" ? "default" : "ghost"}
