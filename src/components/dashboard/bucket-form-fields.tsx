@@ -50,13 +50,20 @@ export function BucketFormFields({
           <Label htmlFor="bucket-month" className="text-right font-medium">
             Month *
           </Label>
-          <Select value={month} onValueChange={(v) => setMonth(v!)} disabled={disabled}>
+          <Select
+            value={month ? MONTHS[parseInt(month, 10) - 1] : ""}
+            onValueChange={(v) => {
+              const index = MONTHS.indexOf(v!)
+              if (index !== -1) setMonth(String(index + 1))
+            }}
+            disabled={disabled}
+          >
             <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {MONTHS.map((name, i) => (
-                <SelectItem key={i} value={String(i + 1)}>
+              {MONTHS.map((name) => (
+                <SelectItem key={name} value={name}>
                   {name}
                 </SelectItem>
               ))}

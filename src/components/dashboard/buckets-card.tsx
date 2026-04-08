@@ -26,9 +26,10 @@ interface BucketsCardProps {
   month: number
   year: number
   onNavigate: (delta: number) => void
+  onJump: (month: number, year: number) => void
 }
 
-export default function BucketsCard({ records, month, year, onNavigate }: BucketsCardProps) {
+export default function BucketsCard({ records, month, year, onNavigate, onJump }: BucketsCardProps) {
   /**
    * Buckets for the active month.
    * Limits come from special "limit records" (name === "", category_limit > 0).
@@ -85,7 +86,7 @@ export default function BucketsCard({ records, month, year, onNavigate }: Bucket
       <CardContent>
         <div className="space-y-4">
           <div className="size-1" />
-          <MonthNavigator month={month} year={year} onNavigate={onNavigate} />
+          <MonthNavigator month={month} year={year} onNavigate={onNavigate} onJump={onJump} />
 
           <ul className="flex flex-col space-y-1">
             {/* ── Total row ────────────────────────────────────────────────── */}

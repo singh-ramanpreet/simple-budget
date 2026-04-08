@@ -29,6 +29,12 @@ function HomePage() {
     setFilterYear(d.getFullYear())
   }
 
+  /** Jump to a specific month/year */
+  const jumpToMonth = (m: number, y: number) => {
+    setFilterMonth(m)
+    setFilterYear(y)
+  }
+
   if (isLoading) {
     return (
       <div className="text-muted-foreground flex min-h-[400px] animate-pulse flex-col items-center justify-center italic">
@@ -65,10 +71,22 @@ function HomePage() {
   return (
     <div className="flex flex-col items-center space-y-4 py-4">
       {/* Transactions */}
-      <TransactionsCard records={records} month={filterMonth} year={filterYear} onNavigate={navigateMonth} />
+      <TransactionsCard
+        records={records}
+        month={filterMonth}
+        year={filterYear}
+        onNavigate={navigateMonth}
+        onJump={jumpToMonth}
+      />
 
       {/* Buckets */}
-      <BucketsCard records={records} month={filterMonth} year={filterYear} onNavigate={navigateMonth} />
+      <BucketsCard
+        records={records}
+        month={filterMonth}
+        year={filterYear}
+        onNavigate={navigateMonth}
+        onJump={jumpToMonth}
+      />
     </div>
   )
 }

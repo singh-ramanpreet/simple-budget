@@ -32,9 +32,10 @@ interface TransactionsCardProps {
   month: number
   year: number
   onNavigate: (delta: number) => void
+  onJump: (month: number, year: number) => void
 }
 
-export default function TransactionsCard({ records, month, year, onNavigate }: TransactionsCardProps) {
+export default function TransactionsCard({ records, month, year, onNavigate, onJump }: TransactionsCardProps) {
   const [filterCategory, setFilterCategory] = useState<string | undefined>(undefined)
   const [filterDialogOpen, setFilterDialogOpen] = useState(false)
   const [selectedFilter, setSelectedFilter] = useState<string | undefined>(undefined)
@@ -86,9 +87,9 @@ export default function TransactionsCard({ records, month, year, onNavigate }: T
       }
       groups[r.date]!.push(r)
     })
-    return Object.entries(groups).sort((a: [string, any], b: [string, any]) =>
-      b[0].localeCompare(a[0])
-    ) as Array<[string, Array<CsvRecord>]>
+    return Object.entries(groups).sort((a: [string, any], b: [string, any]) => b[0].localeCompare(a[0])) as Array<
+      [string, Array<CsvRecord>]
+    >
   }, [paginatedTransactions])
 
   return (
@@ -159,7 +160,7 @@ export default function TransactionsCard({ records, month, year, onNavigate }: T
       <CardContent>
         <div className="space-y-4">
           <div className="size-1" />
-          <MonthNavigator month={month} year={year} onNavigate={onNavigate} />
+          <MonthNavigator month={month} year={year} onNavigate={onNavigate} onJump={onJump} />
 
           {/* Grouped transactions list */}
           <div className="flex flex-col space-y-6">
