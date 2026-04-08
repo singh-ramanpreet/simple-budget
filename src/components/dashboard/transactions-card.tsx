@@ -69,22 +69,26 @@ export default function TransactionsCard({ records, month, year, onNavigate }: T
         const isNormalTransaction = r.name !== "" || parseFloat(r.category_limit) === 0
         return rMonth === month && rYear === year && isNormalTransaction
       })
-      .filter((r) => (filterCategory ? r.category === filterCategory : true))
+      .filter((r: CsvRecord) => (filterCategory ? r.category === filterCategory : true))
+      .slice()
+      .reverse()
+      .sort((a: CsvRecord, b: CsvRecord) => b.date.localeCompare(a.date))
   }, [records, month, year, filterCategory])
 
   const totalPages = Math.ceil(monthTransactions.length / pageSize)
   const paginatedTransactions = monthTransactions.slice((currentPage - 1) * pageSize, currentPage * pageSize)
 
-  /** Grouped by date for display */
   const groupedTransactions = useMemo(() => {
     const groups: Record<string, Array<CsvRecord> | undefined> = {}
-    paginatedTransactions.forEach((r) => {
+    paginatedTransactions.forEach((r: CsvRecord) => {
       if (groups[r.date] === undefined) {
         groups[r.date] = []
       }
       groups[r.date]!.push(r)
     })
-    return Object.entries(groups).sort((a, b) => b[0].localeCompare(a[0])) as Array<[string, Array<CsvRecord>]>
+    return Object.entries(groups).sort((a: [string, any], b: [string, any]) =>
+      b[0].localeCompare(a[0])
+    ) as Array<[string, Array<CsvRecord>]>
   }, [paginatedTransactions])
 
   return (
