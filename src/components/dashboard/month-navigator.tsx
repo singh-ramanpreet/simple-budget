@@ -52,7 +52,7 @@ export default function MonthNavigator({ month, year, onNavigate, onJump }: Mont
         className="shrink-0 cursor-pointer"
       />
 
-      <div className="flex items-center">
+      <div className="flex items-center gap-2">
         <Select
           value={MONTHS[month - 1]}
           onValueChange={(v) => {
@@ -60,7 +60,7 @@ export default function MonthNavigator({ month, year, onNavigate, onJump }: Mont
             if (index !== -1) onJump(index + 1, year)
           }}
         >
-          <SelectTrigger className="hover:bg-accent border-none text-lg font-medium focus:ring-0 [&_svg]:hidden">
+          <SelectTrigger className="bg-input/30 hover:bg-input/50 border-none text-lg font-medium focus:ring-0 [&_svg]:hidden">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -79,7 +79,7 @@ export default function MonthNavigator({ month, year, onNavigate, onJump }: Mont
             onChange={(e) => setYearInput(e.target.value)}
             onBlur={commitYear}
             onKeyDown={(e) => e.key === "Enter" && commitYear()}
-            className="hover:bg-accent focus-visible:bg-accent w-full [appearance:textfield] border-none text-lg font-medium shadow-none focus-visible:ring-0 md:text-lg [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            className="hover:bg-accent bg-input/30 focus-visible:bg-accent w-full [appearance:textfield] border-none text-lg font-medium shadow-none focus-visible:ring-0 md:text-lg [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           />
         </div>
       </div>
