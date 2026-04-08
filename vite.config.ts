@@ -28,7 +28,7 @@ export default defineConfig({
     nitro(),
     VitePWA({
       registerType: "autoUpdate",
-      injectRegister: false, // We'll handle it in __root.tsx
+      injectRegister: false, // handle it in __root.tsx
       outDir: ".output/public",
       includeAssets: [
         "favicon.ico",
@@ -43,6 +43,7 @@ export default defineConfig({
         start_url: "/",
         display: "standalone",
         background_color: "#0a0a0a",
+        theme_color: "#0a0a0a",
         icons: [
           {
             src: "/web-app-manifest-192x192.png",

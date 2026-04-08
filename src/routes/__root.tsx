@@ -11,8 +11,6 @@ export const Route = createRootRoute({
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Simple Budget" },
-      { name: "theme-color", content: "#0a0a0a", media: "(prefers-color-scheme: dark)" },
-      { name: "theme-color", content: "#ffffff", media: "(prefers-color-scheme: light)" },
     ],
     links: [
       { rel: "manifest", href: "/manifest.webmanifest" },
@@ -46,6 +44,8 @@ function RootLayout() {
     <html lang="en">
       <head>
         <HeadContent />
+        <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
+        <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
       </head>
       <body>
         <ThemeProvider defaultTheme="system" storageKey="simple-budget-theme">
