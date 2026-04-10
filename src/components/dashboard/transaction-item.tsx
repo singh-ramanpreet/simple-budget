@@ -20,12 +20,14 @@ export default function TransactionItem({ record }: TransactionItemProps) {
   const dayNum = d.day
 
   return (
-    <div className="hover:bg-muted cursor-pointer rounded-lg py-2 pr-2 transition-colors">
+    <div className="hover:bg-muted cursor-pointer rounded-lg py-1 pr-2 transition-colors">
       <div className="flex shrink-0 items-center gap-2">
         {/* Date pill */}
         <div className="flex w-[49.5%] shrink-0 items-center gap-2">
           <div className="bg-secondary text-secondary-foreground flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-lg">
-            <span className="text-xs font-semibold uppercase">{shortMonth}</span>
+            <div className="bg-muted-foreground/20 w-full rounded-t-lg">
+              <span className="text-xs font-semibold uppercase">{shortMonth}</span>
+            </div>
             <span className="text-lg font-bold">{dayNum}</span>
           </div>
 

@@ -167,13 +167,13 @@ export default function TransactionsCard({ records, month, year, onNavigate, onJ
           <MonthNavigator month={month} year={year} onNavigate={onNavigate} onJump={onJump} />
 
           {/* Grouped transactions list */}
-          <div className="flex flex-col space-y-6">
+          <div className="flex flex-col space-y-2">
             {groupedTransactions.length === 0 && (
               <p className="text-muted-foreground py-8 text-center text-sm italic">No transactions this month.</p>
             )}
             {groupedTransactions.map(([date, items]) => (
               <div key={date}>
-                <h3 className="mb-2 text-xs font-semibold tracking-wider uppercase">
+                <h3 className="mb-1 text-xs font-semibold tracking-wider uppercase">
                   {(() => {
                     const { year: y, month: m, day: d } = parseLocalDate(date)
                     return new Date(y, m - 1, d).toLocaleDateString("default", {
