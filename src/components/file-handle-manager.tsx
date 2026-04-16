@@ -4,14 +4,13 @@ import {
   CheckmarkCircle01Icon,
   FileCodeIcon,
   FolderOpenIcon,
-  Refresh03Icon,
 } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { useFileHandle } from "@/components/providers/file-handle-provider"
 import { Button } from "@/components/ui/button"
 
 export function FileHandleManager() {
-  const { fileHandle, hasPermission, pickFile, createFile, requestAccess, clearHandle, syncWithFile } = useFileHandle()
+  const { fileHandle, hasPermission, pickFile, createFile, requestAccess, clearHandle } = useFileHandle()
 
   if (!fileHandle) {
     return (
@@ -77,9 +76,6 @@ export function FileHandleManager() {
               Saving changes directly to: <span className="font-mono">{fileHandle.name}</span>
             </p>
           </div>
-          <Button variant="outline" size="lg" onClick={syncWithFile} className="w-full">
-            <HugeiconsIcon icon={Refresh03Icon} /> Sync from File
-          </Button>
         </div>
       )}
     </div>
