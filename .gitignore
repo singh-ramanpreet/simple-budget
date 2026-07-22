@@ -1,5 +1,6 @@
 # tanstack
 .output
+dist
 .tanstack
 
 # node_modules

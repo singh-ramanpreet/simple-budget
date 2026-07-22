@@ -1,9 +1,7 @@
-// vite.config.ts
 import { defineConfig } from "vite"
-import { tanstackStart } from "@tanstack/react-start/plugin/vite"
+import { tanstackRouter } from "@tanstack/router-plugin/vite"
 import viteReact from "@vitejs/plugin-react"
 import tailwindcss from "@tailwindcss/vite"
-import { nitro } from "nitro/vite"
 import { VitePWA } from "vite-plugin-pwa"
 
 export default defineConfig({
@@ -14,22 +12,18 @@ export default defineConfig({
     tsconfigPaths: true,
   },
   plugins: [
-    tailwindcss(),
-    tanstackStart({
-      srcDirectory: "src",
-      prerender: {
-        enabled: true,
-      },
-      router: {
-        routesDirectory: "routes",
-      },
+    tanstackRouter({
+      target: "react",
+      autoCodeSplitting: true,
+      routesDirectory: "src/routes",
+      generatedRouteTree: "src/routeTree.gen.ts",
     }),
+    tailwindcss(),
     viteReact(),
-    nitro(),
     VitePWA({
       registerType: "autoUpdate",
-      injectRegister: false, // handle it in __root.tsx
-      outDir: ".output/public",
+      injectRegister: false,
+      outDir: "dist",
       includeAssets: [
         "favicon.ico",
         "apple-icon.png",
@@ -72,7 +66,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globDirectory: ".output/public",
+        globDirectory: "dist",
         globPatterns: ["**/*.{js,css,html,ico,png,svg,webmanifest}"],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         runtimeCaching: [
