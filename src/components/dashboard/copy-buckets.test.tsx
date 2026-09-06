@@ -1,9 +1,11 @@
 import { describe, expect, test } from "bun:test"
 import { screen, within } from "@testing-library/react"
-import { limit, parseCsv, tx } from "@test/csv"
+import { limit, parseCsv, toCsv, tx } from "@test/csv"
+import { createFakeFileHandle } from "@test/fake-file-system"
 import { renderWithFile, waitForDialogToClose } from "@test/render"
 import CopyBuckets from "./copy-buckets"
 import type { CsvRecord } from "./types"
+import type { FakeFileHandle } from "@test/fake-file-system"
 
 const RECORDS: Array<CsvRecord> = [
   limit("2026-02-01", "Food", 500),
@@ -12,8 +14,8 @@ const RECORDS: Array<CsvRecord> = [
   limit("2026-03-01", "Rent", 1200),
 ]
 
-async function openDialog(records: Array<CsvRecord> = RECORDS, month = 3, year = 2026) {
-  const view = await renderWithFile(<CopyBuckets month={month} year={year} />, { records })
+async function openDialog(records: Array<CsvRecord> = RECORDS, month = 3, year = 2026, handle?: FakeFileHandle) {
+  const view = await renderWithFile(<CopyBuckets month={month} year={year} />, { records, handle })
   await view.user.click(screen.getByText("Copy Buckets"))
   const dialog = await screen.findByRole("dialog")
   return {
@@ -50,6 +52,20 @@ describe("CopyBuckets", () => {
     expect(rows).toContainEqual(limit("2026-03-01", "Food", 500))
     expect(rows).toContainEqual(limit("2026-02-01", "Food", 500))
     expect(rows.filter((r) => r.name === "" && r.category === "Rent")).toHaveLength(2)
+  })
+
+  test("a double-click on Continue copies the buckets once", async () => {
+    const handle = createFakeFileHandle({ content: toCsv(RECORDS), writeDelayMs: 80 })
+    const { user, dialog, continueButton, closed } = await openDialog(RECORDS, 3, 2026, handle)
+
+    await user.dblClick(continueButton())
+    expect(dialog.getByRole("button", { name: /Copying/ })).toBeDisabled()
+    await closed()
+
+    expect(handle.writes).toHaveLength(1)
+    const rows = parseCsv(handle.content)
+    expect(rows).toHaveLength(RECORDS.length + 1)
+    expect(rows.filter((r) => r.name === "" && r.category === "Food" && r.date === "2026-03-01")).toHaveLength(1)
   })
 
   test("shows an empty state and disables Continue when nothing is missing", async () => {

@@ -8,8 +8,11 @@ interface TransactionFooterProps {
   onDelete?: () => void
   onCopy?: () => void
   isSaveDisabled?: boolean
+  /** True while a save or delete is running: every action is disabled and the submit button shows `pendingLabel` */
+  isPending?: boolean
   deleteLabel?: string
   saveLabel?: string
+  pendingLabel?: string
 }
 
 export function TransactionFooter({
@@ -17,13 +20,21 @@ export function TransactionFooter({
   onDelete,
   onCopy,
   isSaveDisabled,
+  isPending = false,
   deleteLabel,
   saveLabel = "Save",
+  pendingLabel = "Saving…",
 }: TransactionFooterProps) {
   return (
     <div className="mt-6 flex items-center justify-between gap-3 border-t pt-6">
       {onDelete ? (
-        <Button variant="destructive" size={deleteLabel ? "default" : "icon"} onClick={onDelete} className="shrink-0">
+        <Button
+          variant="destructive"
+          size={deleteLabel ? "default" : "icon"}
+          onClick={onDelete}
+          disabled={isPending}
+          className="shrink-0"
+        >
           <HugeiconsIcon icon={Delete02Icon} className={cn("h-5 w-5", deleteLabel && "mr-2")} />
           {deleteLabel}
         </Button>
@@ -33,14 +44,14 @@ export function TransactionFooter({
 
       <div className="flex items-center gap-3">
         {onCopy && (
-          <Button variant="outline" onClick={onCopy}>
+          <Button variant="outline" onClick={onCopy} disabled={isPending}>
             Copy
           </Button>
         )}
-        <Button type="submit" disabled={isSaveDisabled}>
-          {saveLabel}
+        <Button type="submit" disabled={isSaveDisabled || isPending} aria-busy={isPending}>
+          {isPending ? pendingLabel : saveLabel}
         </Button>
-        <Button variant="outline" onClick={onCancel}>
+        <Button variant="outline" onClick={onCancel} disabled={isPending}>
           Cancel
         </Button>
       </div>

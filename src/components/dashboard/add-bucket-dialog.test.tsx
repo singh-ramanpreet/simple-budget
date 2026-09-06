@@ -1,14 +1,16 @@
 import { describe, expect, test } from "bun:test"
 import { screen, within } from "@testing-library/react"
-import { limit, parseCsv, tx } from "@test/csv"
+import { limit, parseCsv, toCsv, tx } from "@test/csv"
+import { createFakeFileHandle } from "@test/fake-file-system"
 import { renderWithFile, waitForDialogToClose } from "@test/render"
 import AddBucketDialog from "./add-bucket-dialog"
 import type { CsvRecord } from "./types"
+import type { FakeFileHandle } from "@test/fake-file-system"
 
 const RECORDS: Array<CsvRecord> = [limit("2026-03-01", "Food", 500), tx("2026-03-02", "Coffee", 4, "Food")]
 
-async function openDialog(records: Array<CsvRecord> = RECORDS) {
-  const view = await renderWithFile(<AddBucketDialog initialMonth={3} initialYear={2026} />, { records })
+async function openDialog(records: Array<CsvRecord> = RECORDS, handle?: FakeFileHandle) {
+  const view = await renderWithFile(<AddBucketDialog initialMonth={3} initialYear={2026} />, { records, handle })
   await view.user.click(screen.getByText("New Bucket"))
   const dialog = await screen.findByRole("dialog")
   return {
@@ -61,6 +63,20 @@ describe("AddBucketDialog", () => {
     const foodLimits = rows.filter((r) => r.name === "" && r.category === "Food")
     expect(foodLimits).toEqual([limit("2026-03-01", "Food", 750)])
     expect(rows).toContainEqual(tx("2026-03-02", "Coffee", 4, "Food"))
+  })
+
+  test("a double-click on Save writes the bucket once", async () => {
+    const handle = createFakeFileHandle({ content: toCsv(RECORDS), writeDelayMs: 80 })
+    const { user, categoryInput, limitInput, saveButton, closed } = await openDialog(RECORDS, handle)
+
+    await user.type(categoryInput(), "Travel")
+    await user.type(limitInput(), "300")
+    await user.dblClick(saveButton())
+    await closed()
+
+    expect(handle.writes).toHaveLength(1)
+    const rows = parseCsv(handle.content)
+    expect(rows.filter((r) => r.category === "Travel")).toEqual([limit("2026-03-01", "Travel", 300)])
   })
 
   test("can target a different month and year", async () => {

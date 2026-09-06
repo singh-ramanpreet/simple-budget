@@ -24,6 +24,8 @@ export interface FakeFileHandleOptions {
   content?: string
   /** Permission state reported by queryPermission(). requestPermission() always grants. */
   permission?: PermissionState
+  /** Delay before a write is committed, to simulate a slow disk. Default: immediate. */
+  writeDelayMs?: number
 }
 
 export function createFakeFileHandle(options: FakeFileHandleOptions = {}): FakeFileHandle {
@@ -60,9 +62,20 @@ export function createFakeFileHandle(options: FakeFileHandleOptions = {}): FakeF
           return Promise.resolve()
         },
         close() {
-          content = buffer
-          writes.push(buffer)
-          return Promise.resolve()
+          const commit = () => {
+            content = buffer
+            writes.push(buffer)
+          }
+          if (!options.writeDelayMs) {
+            commit()
+            return Promise.resolve()
+          }
+          return new Promise<void>((resolve) => {
+            setTimeout(() => {
+              commit()
+              resolve()
+            }, options.writeDelayMs)
+          })
         },
         seek: () => Promise.resolve(),
         truncate: () => Promise.resolve(),

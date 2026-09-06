@@ -6,6 +6,7 @@ import type { CsvRecord } from "@/components/dashboard/types"
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { useFileHandle } from "@/components/providers/file-handle-provider"
 import { parseLocalDate, toRecord } from "@/components/dashboard/types"
+import { usePendingAction } from "@/hooks/use-pending-action"
 
 interface EditTransactionDialogProps {
   record: CsvRecord
@@ -15,6 +16,7 @@ interface EditTransactionDialogProps {
 export default function EditTransactionDialog({ record, children }: EditTransactionDialogProps) {
   const { data, setData } = useFileHandle()
   const [open, setOpen] = useState(false)
+  const { isPending, run } = usePendingAction()
 
   const parseDate = (d: string) => {
     if (!d) return new Date()
@@ -139,7 +141,7 @@ export default function EditTransactionDialog({ record, children }: EditTransact
         <form
           onSubmit={(e) => {
             e.preventDefault()
-            handleSave()
+            run(handleSave)
           }}
         >
           <TransactionFormFields
@@ -160,8 +162,9 @@ export default function EditTransactionDialog({ record, children }: EditTransact
 
           <TransactionFooter
             onCancel={() => setOpen(false)}
-            onDelete={handleDelete}
+            onDelete={() => run(handleDelete)}
             onCopy={handleCopy}
+            isPending={isPending}
             isSaveDisabled={!name.trim() || !amount.trim() || !category.trim()}
           />
         </form>

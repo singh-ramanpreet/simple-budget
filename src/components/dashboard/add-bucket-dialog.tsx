@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/dialog"
 import { useFileHandle } from "@/components/providers/file-handle-provider"
 import { parseLocalDate, toRecord } from "@/components/dashboard/types"
+import { usePendingAction } from "@/hooks/use-pending-action"
 
 export default function AddBucketDialog({
   initialMonth,
@@ -34,6 +35,7 @@ export default function AddBucketDialog({
 }) {
   const { data, setData } = useFileHandle()
   const [open, setOpen] = useState(false)
+  const { isPending: isSaving, run } = usePendingAction()
 
   const now = new Date()
   const [month, setMonth] = useState(String(initialMonth ?? now.getMonth() + 1))
@@ -106,7 +108,7 @@ export default function AddBucketDialog({
         <form
           onSubmit={(e) => {
             e.preventDefault()
-            handleSave()
+            run(handleSave)
           }}
         >
           <BucketFormFields
@@ -122,6 +124,7 @@ export default function AddBucketDialog({
 
           <TransactionFooter
             onCancel={() => setOpen(false)}
+            isPending={isSaving}
             isSaveDisabled={!category.trim() || !limit.trim() || !month.trim() || !year.trim()}
           />
         </form>

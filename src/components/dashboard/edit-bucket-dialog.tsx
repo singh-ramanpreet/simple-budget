@@ -12,6 +12,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { useFileHandle } from "@/components/providers/file-handle-provider"
+import { usePendingAction } from "@/hooks/use-pending-action"
 
 interface EditBucketDialogProps {
   bucket: BucketView
@@ -21,6 +22,7 @@ interface EditBucketDialogProps {
 export default function EditBucketDialog({ bucket, children }: EditBucketDialogProps) {
   const { data, setData } = useFileHandle()
   const [open, setOpen] = useState(false)
+  const { isPending, run } = usePendingAction()
   const [category, setCategory] = useState(bucket.category)
   const [limit, setLimit] = useState(String(bucket.limit || ""))
 
@@ -89,6 +91,21 @@ export default function EditBucketDialog({ bucket, children }: EditBucketDialogP
     setOpen(false)
   }
 
+  /** Removes this month's limit row for the bucket; its transactions are kept */
+  const handleDelete = async () => {
+    const m = bucket.month
+    const y = bucket.year
+    const updatedData = data.filter((r) => {
+      const rec = toRecord(r)
+      const isLimitRecord = rec.name === "" && parseFloat(rec.category_limit) > 0
+      if (!isLimitRecord) return true
+      const { month: rMonth, year: rYear } = parseLocalDate(rec.date)
+      return !(rec.category === bucket.category && rMonth === m && rYear === y)
+    })
+    await setData(updatedData)
+    setOpen(false)
+  }
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger>{children}</DialogTrigger>
@@ -104,7 +121,7 @@ export default function EditBucketDialog({ bucket, children }: EditBucketDialogP
         <form
           onSubmit={(e) => {
             e.preventDefault()
-            handleSave()
+            run(handleSave)
           }}
         >
           <BucketFormFields
@@ -117,19 +134,8 @@ export default function EditBucketDialog({ bucket, children }: EditBucketDialogP
 
           <TransactionFooter
             onCancel={() => setOpen(false)}
-            onDelete={async () => {
-              const m = bucket.month
-              const y = bucket.year
-              const updatedData = data.filter((r) => {
-                const rec = toRecord(r)
-                const isLimitRecord = rec.name === "" && parseFloat(rec.category_limit) > 0
-                if (!isLimitRecord) return true
-                const { month: rMonth, year: rYear } = parseLocalDate(rec.date)
-                return !(rec.category === bucket.category && rMonth === m && rYear === y)
-              })
-              await setData(updatedData)
-              setOpen(false)
-            }}
+            onDelete={() => run(handleDelete)}
+            isPending={isPending}
             isSaveDisabled={!category.trim() || !limit.trim()}
           />
         </form>

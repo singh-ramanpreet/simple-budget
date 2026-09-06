@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog"
 import { useFileHandle } from "@/components/providers/file-handle-provider"
 import { isLimitRecord, parseLocalDate, toRecord } from "@/components/dashboard/types"
+import { usePendingAction } from "@/hooks/use-pending-action"
 
 interface CopyBucketsProps {
   month: number
@@ -22,6 +23,7 @@ interface CopyBucketsProps {
 export default function CopyBuckets({ month, year }: CopyBucketsProps) {
   const { data, setData } = useFileHandle()
   const [open, setOpen] = useState(false)
+  const { isPending: isCopying, run } = usePendingAction()
 
   // Calculate previous month names for the UI
   const currentMonthName = new Date(year, month - 1).toLocaleString("default", { month: "long" })
@@ -121,12 +123,14 @@ export default function CopyBuckets({ month, year }: CopyBucketsProps) {
         <form
           onSubmit={(e) => {
             e.preventDefault()
-            handleCopy()
+            run(handleCopy)
           }}
         >
           <TransactionFooter
             saveLabel="Continue"
+            pendingLabel="Copying…"
             onCancel={() => setOpen(false)}
+            isPending={isCopying}
             isSaveDisabled={categoriesToCopy.length === 0}
           />
         </form>

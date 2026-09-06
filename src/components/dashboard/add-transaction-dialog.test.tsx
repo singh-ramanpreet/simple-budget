@@ -1,9 +1,11 @@
 import { afterAll, beforeAll, describe, expect, setSystemTime, test } from "bun:test"
 import { act, screen, within } from "@testing-library/react"
-import { limit, parseCsv, tx } from "@test/csv"
+import { limit, parseCsv, toCsv, tx } from "@test/csv"
+import { createFakeFileHandle } from "@test/fake-file-system"
 import { renderWithFile, waitForDialogToClose } from "@test/render"
 import AddTransactionDialog from "./add-transaction-dialog"
 import type { CsvRecord } from "./types"
+import type { FakeFileHandle } from "@test/fake-file-system"
 
 const TODAY = new Date(2026, 2, 15, 12)
 
@@ -16,8 +18,8 @@ const MARCH: Array<CsvRecord> = [
 beforeAll(() => setSystemTime(TODAY))
 afterAll(() => setSystemTime())
 
-async function openDialog(records: Array<CsvRecord> = MARCH) {
-  const view = await renderWithFile(<AddTransactionDialog />, { records })
+async function openDialog(records: Array<CsvRecord> = MARCH, handle?: FakeFileHandle) {
+  const view = await renderWithFile(<AddTransactionDialog />, { records, handle })
   await view.user.click(screen.getByText("New Transaction"))
   const dialog = await screen.findByRole("dialog")
   return {
@@ -26,7 +28,17 @@ async function openDialog(records: Array<CsvRecord> = MARCH) {
     // The Name/Notes inputs carry a datalist and so are comboboxes too; target the Select trigger
     categorySelect: () => dialog.querySelector<HTMLElement>('[data-slot="select-trigger"]')!,
     saveButton: () => within(dialog).getByRole("button", { name: "Save" }),
+    /** The submit button whatever its current label ("Save" or "Saving…") */
+    submitButton: () => dialog.querySelector<HTMLButtonElement>('button[type="submit"]')!,
   }
+}
+
+async function fillInLunch(view: Awaited<ReturnType<typeof openDialog>>) {
+  const { user, dialog, categorySelect } = view
+  await user.type(dialog.getByPlaceholderText("Name"), "Lunch")
+  await user.type(dialog.getByPlaceholderText("0.00"), "12.5")
+  await user.click(categorySelect())
+  await user.click(await screen.findByRole("option", { name: "Food" }))
 }
 
 describe("AddTransactionDialog", () => {
@@ -92,6 +104,40 @@ describe("AddTransactionDialog", () => {
       category_limit: "0",
       notes: "work",
     })
+  })
+
+  test("a double-click on Save adds the transaction only once", async () => {
+    const handle = createFakeFileHandle({ content: toCsv(MARCH), writeDelayMs: 80 })
+    const view = await openDialog(MARCH, handle)
+    const { user, dialog, saveButton, submitButton } = view
+    await fillInLunch(view)
+
+    await user.dblClick(saveButton())
+
+    // While the write is in flight every action is locked and the button reports progress
+    expect(submitButton()).toBeDisabled()
+    expect(submitButton()).toHaveTextContent(/Saving/)
+    expect(dialog.getByRole("button", { name: "Cancel" })).toBeDisabled()
+
+    await waitForDialogToClose()
+    expect(handle.writes).toHaveLength(1)
+    const rows = parseCsv(handle.content)
+    expect(rows).toHaveLength(MARCH.length + 1)
+    expect(rows.filter((r) => r.name === "Lunch")).toHaveLength(1)
+  })
+
+  test("Enter followed by a click on Save adds the transaction only once", async () => {
+    const handle = createFakeFileHandle({ content: toCsv(MARCH), writeDelayMs: 80 })
+    const view = await openDialog(MARCH, handle)
+    const { user, dialog, submitButton } = view
+    await fillInLunch(view)
+
+    await user.type(dialog.getByPlaceholderText("Notes"), "work{Enter}")
+    await user.click(submitButton())
+
+    await waitForDialogToClose()
+    expect(handle.writes).toHaveLength(1)
+    expect(parseCsv(handle.content).filter((r) => r.name === "Lunch")).toHaveLength(1)
   })
 
   test("pre-fills and opens when a transaction is copied", async () => {

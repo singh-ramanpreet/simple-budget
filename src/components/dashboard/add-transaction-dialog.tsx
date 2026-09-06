@@ -19,10 +19,12 @@ import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/
 
 import { useFileHandle } from "@/components/providers/file-handle-provider"
 import { parseLocalDate, toRecord } from "@/components/dashboard/types"
+import { usePendingAction } from "@/hooks/use-pending-action"
 
 export default function AddTransactionDialog() {
   const { data, setData } = useFileHandle()
   const [open, setOpen] = useState(false)
+  const { isPending: isSaving, run } = usePendingAction()
 
   // Form state
   const [date, setDate] = useState<Date>(new Date())
@@ -112,7 +114,7 @@ export default function AddTransactionDialog() {
         <form
           onSubmit={(e) => {
             e.preventDefault()
-            handleSave()
+            run(handleSave)
           }}
         >
           <TransactionFormFields
@@ -133,6 +135,7 @@ export default function AddTransactionDialog() {
 
           <TransactionFooter
             onCancel={() => handleOpenChange(false)}
+            isPending={isSaving}
             isSaveDisabled={!name.trim() || !amount.trim() || !category.trim()}
           />
         </form>

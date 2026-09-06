@@ -1,11 +1,13 @@
 import { afterAll, beforeAll, describe, expect, setSystemTime, test } from "bun:test"
 import { screen, within } from "@testing-library/react"
-import { limit, parseCsv, tx } from "@test/csv"
+import { limit, parseCsv, toCsv, tx } from "@test/csv"
+import { createFakeFileHandle } from "@test/fake-file-system"
 import { renderWithFile, waitForDialogToClose } from "@test/render"
 import EditTransactionDialog from "./edit-transaction-dialog"
 import AddTransactionDialog from "./add-transaction-dialog"
 import TransactionItem from "./transaction-item"
 import type { CsvRecord } from "./types"
+import type { FakeFileHandle } from "@test/fake-file-system"
 
 const TODAY = new Date(2026, 2, 15, 12)
 
@@ -15,7 +17,7 @@ const RECORDS: Array<CsvRecord> = [limit("2026-03-01", "Food", 500), COFFEE, tx(
 beforeAll(() => setSystemTime(TODAY))
 afterAll(() => setSystemTime())
 
-async function openDialog(record: CsvRecord = COFFEE, records: Array<CsvRecord> = RECORDS) {
+async function openDialog(record: CsvRecord = COFFEE, records: Array<CsvRecord> = RECORDS, handle?: FakeFileHandle) {
   const view = await renderWithFile(
     <>
       <EditTransactionDialog record={record}>
@@ -23,7 +25,7 @@ async function openDialog(record: CsvRecord = COFFEE, records: Array<CsvRecord> 
       </EditTransactionDialog>
       <AddTransactionDialog />
     </>,
-    { records }
+    { records, handle }
   )
   await view.user.click(screen.getByText(record.name))
   const dialog = await screen.findByRole("dialog")
@@ -76,6 +78,36 @@ describe("EditTransactionDialog", () => {
     expect(rows).toHaveLength(RECORDS.length - 1)
     expect(rows).not.toContainEqual(COFFEE)
     expect(rows.map((r) => r.name)).toEqual(["", "Bus"])
+  })
+
+  test("a double-click on Save writes the edit once and locks the other actions meanwhile", async () => {
+    const handle = createFakeFileHandle({ content: toCsv(RECORDS), writeDelayMs: 80 })
+    const { user, dialog, deleteButton, closed } = await openDialog(COFFEE, RECORDS, handle)
+
+    await user.clear(dialog.getByPlaceholderText("0.00"))
+    await user.type(dialog.getByPlaceholderText("0.00"), "6")
+    await user.dblClick(dialog.getByRole("button", { name: "Save" }))
+
+    expect(deleteButton()).toBeDisabled()
+    expect(dialog.getByRole("button", { name: "Copy" })).toBeDisabled()
+    expect(dialog.getByRole("button", { name: "Cancel" })).toBeDisabled()
+
+    await closed()
+    expect(handle.writes).toHaveLength(1)
+    const rows = parseCsv(handle.content)
+    expect(rows).toHaveLength(RECORDS.length)
+    expect(rows.filter((r) => r.name === "Coffee")).toEqual([{ ...COFFEE, amount: "6" }])
+  })
+
+  test("a double-click on Delete removes the row once", async () => {
+    const handle = createFakeFileHandle({ content: toCsv(RECORDS), writeDelayMs: 80 })
+    const { user, deleteButton, closed } = await openDialog(COFFEE, RECORDS, handle)
+
+    await user.dblClick(deleteButton())
+    await closed()
+
+    expect(handle.writes).toHaveLength(1)
+    expect(parseCsv(handle.content)).toHaveLength(RECORDS.length - 1)
   })
 
   test("cancelling leaves the file untouched", async () => {
