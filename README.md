@@ -69,6 +69,33 @@ bun install
 bun run dev
 ```
 
+### Tests
+
+UI tests run on Bun's built-in test runner with [happy-dom](https://github.com/capricorn86/happy-dom) and [Testing Library](https://testing-library.com/). They exercise the real providers against an in-memory CSV file, so no browser is needed.
+
+```bash
+# Run the whole suite
+bun test
+
+# Only tests affected by uncommitted changes
+bun test --changed
+
+# Isolate each file in a fresh global, or spread files across workers
+bun test --isolate
+bun test --parallel
+```
+
+Test files live next to the components they cover (`*.test.tsx`); shared helpers are in [test/](test/).
+
+### Screenshots
+
+The images at the top of this README are generated headlessly by [scripts/screenshots.ts](scripts/screenshots.ts). It builds the app, drives it in Chrome through `Bun.WebView` with a fixed budget, date and locale, captures four phone-sized screens per theme, and stitches them into a WebP with `Bun.Image`.
+
+```bash
+# Needs Bun 1.4+ and a Chrome/Chromium binary (auto-detected, or set BUN_CHROME_PATH / pass --chrome)
+bun run screenshots
+```
+
 ## Migration from v2 (SQLite)
 
 If you have a `data.db` from a previous version, use the provided migration script:

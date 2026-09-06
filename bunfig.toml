@@ -1,0 +1,3 @@
+[test]
+# Register a DOM first, then the matchers / cleanup / storage mocks.
+preload = ["./test/happy-dom.ts", "./test/setup.ts"]

@@ -93,14 +93,14 @@ export default function AddTransactionDialog() {
     setOpen(false)
   }
 
+  /** Closing by any means (Escape, backdrop, Cancel) discards the draft */
+  const handleOpenChange = (v: boolean) => {
+    setOpen(v)
+    if (!v) resetForm()
+  }
+
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(v) => {
-        setOpen(v)
-        if (!v) resetForm()
-      }}
-    >
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger className="w-full">
         <Button variant="default" size="lg" className="w-full">
           <HugeiconsIcon icon={PlusSignCircleFreeIcons} />
@@ -132,7 +132,7 @@ export default function AddTransactionDialog() {
           />
 
           <TransactionFooter
-            onCancel={() => setOpen(false)}
+            onCancel={() => handleOpenChange(false)}
             isSaveDisabled={!name.trim() || !amount.trim() || !category.trim()}
           />
         </form>
